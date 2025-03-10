@@ -1,0 +1,10 @@
+grpc:
+  port: 8084
+  timeout: 50000 # in nanoseconds
+
+router:
+  password: admin
+  
+log.prefix: RAS Client controller
+
+auth.key: "CoolAuthKeyThat needs to be changed"

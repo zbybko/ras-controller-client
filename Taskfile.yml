@@ -1,0 +1,10 @@
+version: "3"
+
+tasks: 
+  generate:
+    env:
+      PROTOBUF_OUT_DIR: ./gen/protobuf
+    cmds:
+      - mkdir -p $PROTOBUF_OUT_DIR
+      - protoc -I proto proto/router-internal.proto --go_out=$PROTOBUF_OUT_DIR --go_opt=paths=source_relative --go-grpc_out=$PROTOBUF_OUT_DIR --go-grpc_opt=paths=source_relative
+
