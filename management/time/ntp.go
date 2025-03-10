@@ -36,7 +36,16 @@ func GetNtpServers() ([]NtpServer, error) {
 	parserLogger.SetPrefix("Chrony config parser")
 
 	for scanner.Scan() {
-		server, err := parseServerLine(scanner.Text())
+		line := scanner.Text()
+		if len(line) == 0 {
+			parserLogger.Debug("Empty line")
+			continue
+		}
+		if line[0] == '#' {
+			parserLogger.Debug("Comment line")
+			continue
+		}
+		server, err := parseServerLine(line)
 		if err != nil {
 			parserLogger.Warnf("Error while parsing server from chrony config: %s", err)
 			continue
