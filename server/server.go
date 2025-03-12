@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"ras/management"
-	"ras/management/time"
+	"ras/server/endpoints"
 
 	"github.com/charmbracelet/log"
 	"github.com/gin-gonic/gin"
@@ -32,14 +32,8 @@ func New() *gin.Engine {
 		}
 		ctx.JSON(http.StatusOK, info)
 	})
-	api.GET("/timezone", func(ctx *gin.Context) {
-		zone, err := time.GetTimeZone()
-		if err != nil {
-			log.Errorf("Error while getting timezone: %s", err)
-			ctx.AbortWithStatus(http.StatusInternalServerError)
-		}
-		ctx.JSON(http.StatusOK, gin.H{"timezone": zone})
-	})
+	api.GET("/timezone", endpoints.TimezoneHandler())
+	api.GET("/ntp", endpoints.NtpInfo())
 
 	return srv
 }
