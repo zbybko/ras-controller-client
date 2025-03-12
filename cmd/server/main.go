@@ -11,5 +11,5 @@ func main() {
 
 	srv := server.New()
 
-	srv.Run()
+	srv.Run(server.Address())
 }
