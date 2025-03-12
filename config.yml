@@ -8,3 +8,14 @@ router:
 log.prefix: RAS Client controller
 
 auth.key: "CoolAuthKeyThat needs to be changed"
+
+server:
+  port: 8080
+  mode: release
+  
+storage:
+  path: /tmp/router-key-value-storage
+  
+
+system:
+  default-password: admin

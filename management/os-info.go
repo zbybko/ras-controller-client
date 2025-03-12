@@ -15,11 +15,11 @@ type MemoryInfo struct {
 	Used  uint64
 }
 type OSInfo struct {
-	Memory       MemoryInfo
+	Memory       *memory.Stats
 	CpuStats     *cpu.Stats
 	NetworkStats []network.Stats
 	DiskStats    []disk.Stats
-	LoadAverage  loadavg.Stats
+	LoadAverage  *loadavg.Stats
 }
 
 func GetOSInfo() (OSInfo, error) {
@@ -35,11 +35,8 @@ func GetOSInfo() (OSInfo, error) {
 	return OSInfo{
 		CpuStats:     cpuS,
 		NetworkStats: net,
-		Memory: MemoryInfo{
-			Total: mem.Total,
-			Used:  mem.Used,
-		},
-		DiskStats:   disk,
-		LoadAverage: *load}, nil
+		Memory:       mem,
+		DiskStats:    disk,
+		LoadAverage:  load}, nil
 
 }

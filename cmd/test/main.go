@@ -3,6 +3,7 @@ package main
 import (
 	"ras/config"
 	"ras/management/time"
+	"ras/storage"
 
 	"github.com/charmbracelet/log"
 	"github.com/spf13/viper"
@@ -23,4 +24,7 @@ func main() {
 	time.SetTimeZone("Europe/Moscow")
 	ntpServers, _ := time.GetNtpServers()
 	log.Infof("Ntp server: %s", ntpServers)
+
+	pass := storage.GetPassword()
+	log.Infof("Password hash: %s", pass)
 }
