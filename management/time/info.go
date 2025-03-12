@@ -2,7 +2,6 @@ package time
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"strings"
 
@@ -10,16 +9,6 @@ import (
 )
 
 type TimedateInfoDictionary map[string]string
-
-const RootUserID = 0
-
-// Checks user is root, if not return error
-func checkRoot() error {
-	if os.Geteuid() != RootUserID {
-		return fmt.Errorf("current user is not root")
-	}
-	return nil
-}
 
 func getInfo() (TimedateInfoDictionary, error) {
 	dict := TimedateInfoDictionary{}

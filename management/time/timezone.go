@@ -3,6 +3,7 @@ package time
 import (
 	"fmt"
 	"os/exec"
+	"ras/utils"
 
 	"github.com/charmbracelet/log"
 )
@@ -17,7 +18,7 @@ func GetTimeZone() (string, error) {
 }
 
 func SetTimeZone(timezone string) error {
-	if err := checkRoot(); err != nil {
+	if err := utils.CheckRoot(); err != nil {
 		log.Warn("Operation is not allowed for non-root users")
 		return err
 	}
