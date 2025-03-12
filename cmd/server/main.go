@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"ras/config"
 	"ras/server"
 )
@@ -11,5 +12,7 @@ func main() {
 
 	srv := server.New()
 
-	srv.Run(server.Address())
+	if err := srv.Run(server.Address()); err != nil {
+		log.Fatalf("Failed start server: %s", err)
+	}
 }
