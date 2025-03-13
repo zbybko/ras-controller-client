@@ -7,6 +7,12 @@ import (
 	"github.com/charmbracelet/log"
 )
 
+type TimeSyncManager interface {
+	GetNtpServers() ([]string, error)
+	AddNtpServer(string) error
+	RemoveNtpServer(string) error
+}
+
 func GetNtpServers() ([]chrony.NtpServer, error) {
 
 	config, err := chrony.ParseConfigFile(chrony.ChronyConfigFile)
