@@ -2,6 +2,7 @@ package main
 
 import (
 	"ras/config"
+	"ras/management/modems"
 	"ras/management/time"
 
 	"github.com/charmbracelet/log"
@@ -34,4 +35,12 @@ func main() {
 
 	// pass := storage.GetPassword()
 	// log.Infof("Password hash: %s", pass)
+
+	modemList, _ := modems.GetList()
+	log.Infof("Modems: %v", modemList)
+	for _, m := range modemList {
+		mInfo, _ := modems.GetInfo(m)
+		log.Infof("Modem: %v", mInfo)
+	}
+	log.Info("Done")
 }
