@@ -19,3 +19,6 @@ storage:
 
 system:
   default-password: admin
+
+client:
+  address: http://localhost:5173

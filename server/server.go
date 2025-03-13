@@ -8,6 +8,7 @@ import (
 	"ras/server/middleware"
 
 	"github.com/charmbracelet/log"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
@@ -25,6 +26,13 @@ func New() *gin.Engine {
 	srv := gin.New()
 	srv.Use(middleware.Logger())
 	api := srv.Group("/api")
+
+	srv.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{viper.GetString("client.address")},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		AllowCredentials: true,
+	}))
 
 	api.GET("/os-info", func(ctx *gin.Context) {
 		info, err := management.GetOSInfo()
