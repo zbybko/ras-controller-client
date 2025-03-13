@@ -114,5 +114,5 @@ type ModemSignal struct {
 		Ecio      string `json:"ecio"`
 		Rscp      string `json:"rscp"`
 		Rssi      string `json:"rssi"`
-	} `json:"umts"	`
+	} `json:"umts"`
 }
