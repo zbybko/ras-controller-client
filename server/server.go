@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"ras/management"
 	"ras/server/endpoints"
+	"ras/server/middleware"
 
 	"github.com/charmbracelet/log"
 	"github.com/gin-gonic/gin"
@@ -21,7 +22,8 @@ func setMode() {
 
 func New() *gin.Engine {
 	setMode()
-	srv := gin.Default()
+	srv := gin.New()
+	srv.Use(middleware.Logger())
 	api := srv.Group("/api")
 
 	api.GET("/os-info", func(ctx *gin.Context) {
@@ -34,7 +36,8 @@ func New() *gin.Engine {
 	})
 	api.GET("/timezone", endpoints.TimezoneHandler())
 	api.GET("/ntp", endpoints.NtpInfo())
-
+	api.POST("/ntp/add", endpoints.AddNtpServerHandler())
+	api.DELETE("/ntp/remove", endpoints.RemoveNtpServerHandler())
 	return srv
 }
 

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"ras/management/time"
+	"ras/management/time/chrony"
 
 	"github.com/charmbracelet/log"
 	"github.com/gin-gonic/gin"
@@ -45,5 +46,51 @@ func NtpInfo() gin.HandlerFunc {
 			r.Servers = append(r.Servers, NtpServer{Address: ntp.Address(), Options: ntp.Options})
 		}
 		ctx.JSON(http.StatusOK, r)
+	}
+}
+
+type addNtpServerRequest struct {
+	Address string   `json:"address"`
+	Options []string `json:"options"`
+}
+
+func AddNtpServerHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var r addNtpServerRequest
+		if err := ctx.ShouldBindJSON(&r); err != nil {
+			log.Errorf("Error while binding request: %s", err)
+			ctx.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+		server := chrony.NewNtpServer(r.Address)
+		server.Options = r.Options
+		err := time.AddNtpServer(server)
+		if err != nil {
+			log.Errorf("Error while adding NTP server: %s", err)
+			ctx.AbortWithStatus(http.StatusInternalServerError)
+		}
+		ctx.Status(http.StatusOK)
+	}
+}
+
+type removeNtpServerRequest struct {
+	Address string `json:"address"`
+}
+
+func RemoveNtpServerHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var r removeNtpServerRequest
+		if err := ctx.ShouldBindJSON(&r); err != nil {
+			log.Errorf("Error while binding request: %s", err)
+			ctx.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+		server := chrony.NewNtpServer(r.Address)
+		err := time.RemoveNtpServer(server)
+		if err != nil {
+			log.Errorf("Error while removing NTP server: %s", err)
+			ctx.AbortWithStatus(http.StatusInternalServerError)
+		}
+		ctx.Status(http.StatusOK)
 	}
 }
