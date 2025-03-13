@@ -35,6 +35,7 @@ func New() *gin.Engine {
 		ctx.JSON(http.StatusOK, info)
 	})
 	api.GET("/timezone", endpoints.TimezoneHandler())
+	api.POST("/timezone/set", endpoints.SetTimezoneHandler())
 	api.GET("/ntp", endpoints.NtpInfo())
 	api.POST("/ntp/add", endpoints.AddNtpServerHandler())
 	api.DELETE("/ntp/remove", endpoints.RemoveNtpServerHandler())
