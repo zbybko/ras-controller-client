@@ -24,9 +24,8 @@ func setMode() {
 func New() *gin.Engine {
 	setMode()
 	srv := gin.New()
-	srv.Use(middleware.Logger())
-	api := srv.Group("/api")
 
+	srv.Use(middleware.Logger())
 	srv.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{viper.GetString("client.address")},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
@@ -34,6 +33,7 @@ func New() *gin.Engine {
 		AllowCredentials: true,
 	}))
 
+	api := srv.Group("/api")
 	api.GET("/os-info", func(ctx *gin.Context) {
 		info, err := management.GetOSInfo()
 		if err != nil {
@@ -47,6 +47,7 @@ func New() *gin.Engine {
 	api.GET("/ntp", endpoints.NtpInfo())
 	api.POST("/ntp/add", endpoints.AddNtpServerHandler())
 	api.DELETE("/ntp/remove", endpoints.RemoveNtpServerHandler())
+	api.GET("/modems", endpoints.ModemsListHandler())
 	return srv
 }
 
