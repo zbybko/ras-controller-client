@@ -19,9 +19,11 @@ func setMode() {
 		mode = gin.DebugMode
 	}
 	gin.SetMode(mode)
+	log.Debugf("Current gin mode: '%s'", gin.Mode())
 }
 
 func New() *gin.Engine {
+	log.Debugf("Initializing gin %s", gin.Version)
 	setMode()
 	srv := gin.New()
 
