@@ -11,7 +11,7 @@ import (
 
 var logger *log.Logger
 
-var DefaultRequestLevel = log.DebugLevel
+var DefaultRequestLevel = log.InfoLevel
 
 func Logger() gin.HandlerFunc {
 	if logger == nil {
