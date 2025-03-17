@@ -13,7 +13,7 @@ func SimInfoHandler() gin.HandlerFunc {
 		var request struct {
 			Sim string `json:"sim"`
 		}
-		if err := c.ShouldBindBodyWithJSON(&request); err != nil || request.Sim == "" {
+		if err := c.ShouldBindJSON(&request); err != nil || request.Sim == "" {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"message": "No sim specified",
 			})
