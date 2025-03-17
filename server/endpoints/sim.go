@@ -17,6 +17,7 @@ func SimInfoHandler() gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"message": "No sim specified",
 			})
+			return
 		}
 
 		info, err := sim.Get(request.Sim)
@@ -25,6 +26,7 @@ func SimInfoHandler() gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"message": "Bad sim specified",
 			})
+			return
 		}
 
 		c.JSON(http.StatusOK, info)
