@@ -11,11 +11,11 @@ func executeCommand(command string, args ...string) (string, error) {
 }
 
 func Enable() error {
-	_, err := executeCommand("systemctl", "start", "iptables")
+	_, err := executeCommand("systemctl", "start", "firewalld")
 	return err
 }
 
 func Disable() error {
-	_, err := executeCommand("systemctl", "stop", "iptables")
+	_, err := executeCommand("systemctl", "stop", "firewalld")
 	return err
 }
