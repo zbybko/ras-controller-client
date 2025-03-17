@@ -43,4 +43,7 @@ func main() {
 		log.Infof("Modem: %v", mInfo)
 	}
 	log.Info("Done")
+
+	// firewall.Enable()
+	// firewall.Disable()
 }

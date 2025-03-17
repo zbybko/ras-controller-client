@@ -1,13 +1,14 @@
 package endpoints
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
-	"ras/management/modems"
+	"ras/management/firewall"
+
+	"github.com/gin-gonic/gin"
 )
 
 func EnableFirewall(c *gin.Context) {
-	if err := modems.Enable(); err != nil {
+	if err := firewall.Enable(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -15,7 +16,7 @@ func EnableFirewall(c *gin.Context) {
 }
 
 func DisableFirewall(c *gin.Context) {
-	if err := modems.Disable(); err != nil {
+	if err := firewall.Disable(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
