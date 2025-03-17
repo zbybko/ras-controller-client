@@ -18,6 +18,7 @@ func init() {
 	}
 
 	viper.SetDefault("config", defaultConfigName)
+	viper.SetDefault("use_mock", false)
 	configName := viper.GetString("config")
 	viper.SetConfigName(configName)
 	viper.AddConfigPath(".")

@@ -56,6 +56,18 @@ func New() *gin.Engine {
 		firewall.GET("/status", endpoints.FirewallStatus())
 		firewall.GET("/can-manage", endpoints.CanManageFirewallHandler())
 	}
+	wifi := api.Group("/wifi")
+	{
+		wifi.POST("/enable", endpoints.EnableWiFi)
+		wifi.POST("/disable", endpoints.DisableWiFi)
+		wifi.GET("/status", endpoints.WiFiStatus())
+		wifi.POST("/ssid/hide", endpoints.SetSSIDHidden)
+		wifi.POST("/ssid/set", endpoints.SetSSID)
+		wifi.POST("/password/set", endpoints.SetPassword)
+		wifi.POST("/security/set", endpoints.SetSecurityType)
+		wifi.POST("/channel/set", endpoints.SetChannel)
+		wifi.GET("/can-manage", endpoints.CanManageWiFiHandler())
+	}
 	api.POST("/auth/", endpoints.Authorization())
 	api.GET("/modems", endpoints.ModemsListHandler())
 	api.POST("/sim", endpoints.SimInfoHandler())

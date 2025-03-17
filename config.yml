@@ -1,6 +1,6 @@
 grpc:
   port: 8084
-  timeout: 50000 # in nanoseconds
+  timeout: 50000
 
 router:
   password: admin
@@ -27,3 +27,5 @@ client:
 
 chrony:
   pool_as_server: true
+
+use_mock: true
