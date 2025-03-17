@@ -57,6 +57,7 @@ func New() *gin.Engine {
 	}
 
 	api.GET("/modems", endpoints.ModemsListHandler())
+	api.POST("/sim", endpoints.SimInfoHandler())
 	return srv
 }
 

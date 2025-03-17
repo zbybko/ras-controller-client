@@ -37,10 +37,10 @@ func main() {
 	// pass := storage.GetPassword()
 	// log.Infof("Password hash: %s", pass)
 
-	modemList, _ := modems.GetList()
+	modemList, _ := modems.List()
 	log.Infof("Modems: %v", modemList)
 	for _, m := range modemList {
-		mInfo, _ := modems.GetInfo(m)
+		mInfo, _ := modems.Get(m)
 		log.Infof("Modem: %v", mInfo)
 	}
 	log.Info("Done")

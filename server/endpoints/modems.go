@@ -10,7 +10,7 @@ import (
 
 func ModemsListHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		modemsList, err := modems.GetList()
+		modemsList, err := modems.List()
 		if err != nil {
 			log.Errorf("Failed get list of available modems: %s", err)
 			ctx.AbortWithStatus(http.StatusInternalServerError)
@@ -18,7 +18,7 @@ func ModemsListHandler() gin.HandlerFunc {
 		info := []*modems.ModemInfo{}
 
 		for _, m := range modemsList {
-			i, err := modems.GetInfo(m)
+			i, err := modems.Get(m)
 
 			if err != nil {
 				log.Warnf("Failed get modem '%s' info: %s", m, err)

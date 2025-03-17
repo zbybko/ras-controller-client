@@ -1,0 +1,32 @@
+package endpoints
+
+import (
+	"net/http"
+	"ras/management/modems/sim"
+
+	"github.com/gin-gonic/gin"
+)
+
+func SimInfoHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var request struct {
+			Sim string `json:"sim"`
+		}
+		if err := c.ShouldBindBodyWithJSON(&request); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "No sim specified",
+			})
+		}
+
+		info, err := sim.Get(request.Sim)
+
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "Bad sim specified",
+			})
+		}
+
+		c.JSON(http.StatusOK, info)
+	}
+}

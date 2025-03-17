@@ -2,17 +2,14 @@ package modems
 
 import (
 	"encoding/json"
-	"fmt"
+	"ras/management/mmcli"
 	"ras/utils"
 
 	"github.com/charmbracelet/log"
 )
 
-const MMCLIJsonOutputFlag = "--output-json"
-const MMCLIListModemsFlag = "--list-modems"
-
-func GetList() ([]string, error) {
-	output, err := utils.Execute("mmcli", MMCLIListModemsFlag, MMCLIJsonOutputFlag)
+func List() ([]string, error) {
+	output, err := utils.Execute("mmcli", mmcli.ListModemsFlag, mmcli.JsonOutputFlag)
 	if err != nil {
 		log.Errorf("Failed get modems list: %s", err)
 		return nil, err
@@ -28,12 +25,8 @@ func GetList() ([]string, error) {
 	return modems.List, nil
 }
 
-func modemFlag(modem string) string {
-	return fmt.Sprintf("--modem='%s'", modem)
-}
-
-func GetInfo(modem string) (*ModemInfo, error) {
-	output, err := utils.Execute("mmcli", modemFlag(modem), MMCLIJsonOutputFlag)
+func Get(modem string) (*ModemInfo, error) {
+	output, err := utils.Execute("mmcli", mmcli.ModemFlag(modem), mmcli.JsonOutputFlag)
 	if err != nil {
 		log.Errorf("Failed get modem info: %s", err)
 		return nil, err
@@ -51,16 +44,16 @@ func GetInfo(modem string) (*ModemInfo, error) {
 }
 
 func (m *ModemInfo) Disable() error {
-	_, err := utils.Execute("mmcli", modemFlag(m.DBusPath), "--disable")
+	_, err := utils.Execute("mmcli", mmcli.ModemFlag(m.DBusPath), "--disable")
 	return err
 }
 func (m *ModemInfo) Enable() error {
-	_, err := utils.Execute("mmcli", modemFlag(m.DBusPath), "--enable")
+	_, err := utils.Execute("mmcli", mmcli.ModemFlag(m.DBusPath), "--enable")
 	return err
 }
 
 func (m *ModemInfo) GetSignal() (*ModemSignal, error) {
-	output, err := utils.Execute("mmcli", modemFlag(m.DBusPath), "--get-signal", MMCLIJsonOutputFlag)
+	output, err := utils.Execute("mmcli", mmcli.ModemFlag(m.DBusPath), "--get-signal", mmcli.JsonOutputFlag)
 	if err != nil {
 		log.Errorf("Failed get signal: %s", err)
 		return nil, err
