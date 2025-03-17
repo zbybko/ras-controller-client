@@ -35,10 +35,9 @@ func modemFlag(modem string) string {
 }
 
 func GetInfo(modem string) (*ModemInfo, error) {
-	cmd := exec.Command("mmcli", modemFlag(modem), MMCLIJsonOutputFlag)
-	output, err := cmd.Output()
+	output, err := utils.Execute("mmcli", modemFlag(modem), MMCLIJsonOutputFlag)
 	if err != nil {
-		log.Errorf("Failed execute command `%s`: %s", cmd.String(), err)
+		log.Errorf("Failed get modem info: %s", err)
 		return nil, err
 	}
 	info := struct {
@@ -54,12 +53,12 @@ func GetInfo(modem string) (*ModemInfo, error) {
 }
 
 func (m *ModemInfo) Disable() error {
-	cmd := exec.Command("mmcli", modemFlag(m.DBusPath), "--disable")
-	return cmd.Run()
+	_, err := utils.Execute("mmcli", modemFlag(m.DBusPath), "--disable")
+	return err
 }
 func (m *ModemInfo) Enable() error {
-	cmd := exec.Command("mmcli", modemFlag(m.DBusPath), "--enable")
-	return cmd.Run()
+	_, err := utils.Execute("mmcli", modemFlag(m.DBusPath), "--enable")
+	return err
 }
 
 func (m *ModemInfo) GetSignal() (*ModemSignal, error) {
@@ -71,7 +70,7 @@ func (m *ModemInfo) GetSignal() (*ModemSignal, error) {
 	info := struct {
 		Signal ModemSignal `json:"modem.signal"`
 	}{}
-	err = json.Unmarshal([]byte(output), &info)
+	err = json.Unmarshal(output, &info)
 	if err != nil {
 		log.Errorf("Failed parse modem signal info from JSON: %s", err)
 		return nil, err

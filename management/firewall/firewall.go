@@ -23,7 +23,7 @@ type FirewallInfo struct {
 func Status() (*FirewallInfo, error) {
 	output, err := utils.Execute("systemctl", "is-active", FirewallService)
 	if err == nil || err.Error() == "exit status 3" {
-		active := output == FirewallStatusActive
+		active := string(output) == FirewallStatusActive
 		return &FirewallInfo{
 			Active: active,
 		}, nil
