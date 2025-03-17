@@ -3,7 +3,6 @@ package modems
 import (
 	"encoding/json"
 	"fmt"
-	"os/exec"
 	"ras/utils"
 
 	"github.com/charmbracelet/log"
@@ -13,10 +12,9 @@ const MMCLIJsonOutputFlag = "--output-json"
 const MMCLIListModemsFlag = "--list-modems"
 
 func GetList() ([]string, error) {
-	cmd := exec.Command("mmcli", MMCLIListModemsFlag, MMCLIJsonOutputFlag)
-	output, err := cmd.Output()
+	output, err := utils.Execute("mmcli", MMCLIListModemsFlag, MMCLIJsonOutputFlag)
 	if err != nil {
-		log.Errorf("Failed execute command `%s`: %s", cmd.String(), err)
+		log.Errorf("Failed get modems list: %s", err)
 		return nil, err
 	}
 	modems := struct {
@@ -64,7 +62,7 @@ func (m *ModemInfo) Enable() error {
 func (m *ModemInfo) GetSignal() (*ModemSignal, error) {
 	output, err := utils.Execute("mmcli", modemFlag(m.DBusPath), "--get-signal", MMCLIJsonOutputFlag)
 	if err != nil {
-		log.Errorf("Failed get list of modems: %s", err)
+		log.Errorf("Failed get signal: %s", err)
 		return nil, err
 	}
 	info := struct {

@@ -17,15 +17,21 @@ func CheckRoot() error {
 	return nil
 }
 
+func wrapCommand(command string, args ...string) string {
+	return exec.Command(command, args...).String()
+}
+
 func Execute(command string, args ...string) ([]byte, error) {
 	logger := config.GetLogger("CLI execution")
 
-	cmd := exec.Command(command, args...)
-	logger.Infof("Command to execute `%s`", cmd.String())
+	wrapped := wrapCommand(command, args...)
+	logger.Infof("Command to execute `%s`", wrapped)
+	cmd := exec.Command("bash", "-c", wrapped)
+	logger.Debugf("Real command to execute `%s`", cmd.String())
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		logger.Warnf("Error while executing command `%s` execute command: %s", cmd.String(), err)
-		logger.Warnf("Output: %s", string(output))
+		logger.Debugf("Output: %s", string(output))
 		return nil, fmt.Errorf("failed executing command `%s`: %s", cmd.String(), err)
 	}
 	return output, err
