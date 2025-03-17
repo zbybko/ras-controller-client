@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"ras/utils"
 
 	"github.com/charmbracelet/log"
 )
@@ -62,16 +63,15 @@ func (m *ModemInfo) Enable() error {
 }
 
 func (m *ModemInfo) GetSignal() (*ModemSignal, error) {
-	cmd := exec.Command("mmcli", modemFlag(m.DBusPath), "--get-signal", MMCLIJsonOutputFlag)
-	output, err := cmd.Output()
+	output, err := utils.Execute("mmcli", modemFlag(m.DBusPath), "--get-signal", MMCLIJsonOutputFlag)
 	if err != nil {
-		log.Errorf("Failed execute command `%s`: %s", cmd.String(), err)
+		log.Errorf("Failed get list of modems: %s", err)
 		return nil, err
 	}
 	info := struct {
 		Signal ModemSignal `json:"modem.signal"`
 	}{}
-	err = json.Unmarshal(output, &info)
+	err = json.Unmarshal([]byte(output), &info)
 	if err != nil {
 		log.Errorf("Failed parse modem signal info from JSON: %s", err)
 		return nil, err

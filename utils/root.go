@@ -22,9 +22,11 @@ func Execute(command string, args ...string) (string, error) {
 
 	cmd := exec.Command(command, args...)
 	logger.Infof("Command to execute `%s`", cmd.String())
-	output, err := cmd.Output()
+	output, err := cmd.CombinedOutput()
 	if err != nil {
 		logger.Warnf("Error while executing command `%s` execute command: %s", cmd.String(), err)
+		logger.Warnf("Output: %s", string(output))
+		return "", fmt.Errorf("failed executing command `%s`: %s", cmd.String(), err)
 	}
 	return string(output), err
 }
