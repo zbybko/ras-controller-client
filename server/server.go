@@ -47,6 +47,11 @@ func New() *gin.Engine {
 	api.GET("/ntp", endpoints.NtpInfo())
 	api.POST("/ntp/add", endpoints.AddNtpServerHandler())
 	api.DELETE("/ntp/remove", endpoints.RemoveNtpServerHandler())
+	firewall := api.Group("/firewall")
+	{
+		firewall.POST("/enable", endpoints.EnableFirewall)
+		firewall.POST("/disable", endpoints.DisableFirewall)
+	}
 	return srv
 }
 
