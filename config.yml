@@ -5,7 +5,9 @@ grpc:
 router:
   password: admin
   
-log.prefix: RAS Client controller
+log:
+  level: info
+  prefix: RAS Client controller
 
 auth.key: "CoolAuthKeyThat needs to be changed"
 

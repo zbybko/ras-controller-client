@@ -19,14 +19,15 @@ func setMode() {
 		mode = gin.DebugMode
 	}
 	gin.SetMode(mode)
+	log.Debugf("Current gin mode: '%s'", gin.Mode())
 }
 
 func New() *gin.Engine {
+	log.Debugf("Initializing gin %s", gin.Version)
 	setMode()
 	srv := gin.New()
-	srv.Use(middleware.Logger())
-	api := srv.Group("/api")
 
+	srv.Use(middleware.Logger())
 	srv.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{viper.GetString("client.address")},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
@@ -34,6 +35,7 @@ func New() *gin.Engine {
 		AllowCredentials: true,
 	}))
 
+	api := srv.Group("/api")
 	api.GET("/os-info", func(ctx *gin.Context) {
 		info, err := management.GetOSInfo()
 		if err != nil {
