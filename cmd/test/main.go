@@ -2,6 +2,7 @@ package main
 
 import (
 	"ras/config"
+	"ras/management/firewall"
 	"ras/management/modems"
 	"ras/management/time"
 
@@ -43,7 +44,21 @@ func main() {
 		log.Infof("Modem: %v", mInfo)
 	}
 	log.Info("Done")
+	FirewallTest()
+}
 
-	// firewall.Enable()
-	// firewall.Disable()
+func FirewallTest() {
+	firewallInfo, err := firewall.Status()
+	if err != nil {
+		log.Errorf("Failed get firewall info: %s", err)
+		return
+	}
+	if !firewallInfo.Active {
+		log.Debug("Firewall inactive")
+		firewall.Disable()
+	} else {
+		log.Debug("Firewall active")
+		firewall.Disable()
+	}
+
 }

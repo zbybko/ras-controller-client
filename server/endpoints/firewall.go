@@ -12,7 +12,7 @@ func EnableFirewall(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"status": "Firewall enabled"})
+	c.JSON(http.StatusOK, gin.H{"firewallEnabled": true})
 }
 
 func DisableFirewall(c *gin.Context) {
@@ -20,5 +20,17 @@ func DisableFirewall(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"status": "Firewall disabled"})
+	c.JSON(http.StatusOK, gin.H{"firewallEnabled": true})
+}
+
+func FirewallStatus() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		status, err := firewall.Status()
+		if err != nil {
+			ctx.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, status)
+	}
 }

@@ -53,6 +53,7 @@ func New() *gin.Engine {
 	{
 		firewall.POST("/enable", endpoints.EnableFirewall)
 		firewall.POST("/disable", endpoints.DisableFirewall)
+		firewall.GET("/status", endpoints.FirewallStatus())
 	}
 
 	api.GET("/modems", endpoints.ModemsListHandler())

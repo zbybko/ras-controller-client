@@ -24,7 +24,7 @@ func Execute(command string, args ...string) (string, error) {
 	logger.Infof("Command to execute `%s`", cmd.String())
 	output, err := cmd.Output()
 	if err != nil {
-		logger.Errorf("Failed execute command: %s", err)
+		logger.Warnf("Error while executing command `%s` execute command: %s", cmd.String(), err)
 	}
 	return string(output), err
 }
