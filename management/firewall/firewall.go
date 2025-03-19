@@ -1,7 +1,9 @@
 package firewall
 
 import (
+	"os/exec"
 	"ras/utils"
+	"strings"
 
 	"github.com/charmbracelet/log"
 )
@@ -20,18 +22,31 @@ type FirewallInfo struct {
 	Active bool `json:"active"`
 }
 
+const ExitCodeInactive = 3
+const ExitCodeNormal = 0
+
 func Status() (*FirewallInfo, error) {
 	output, err := utils.Execute("systemctl", "is-active", FirewallService)
-	if err == nil || err.Error() == "exit status 3" {
-		active := string(output) == FirewallStatusActive
-		return &FirewallInfo{
-			Active: active,
-		}, nil
 
-	} else {
-		log.Errorf("Failed get status of firewall: %s", err)
-		return nil, err
+	// Pass if error is 'exit code 3'
+	// Exit code 3 is for inactive state of service
+	if err != nil {
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			if exitErr.ExitCode() != ExitCodeInactive {
+				log.Errorf("Failed get status of firewall, exit code isn't valid: %s", err)
+			}
+		} else {
+			log.Errorf("Failed get status of firewall: %s", err)
+			return nil, err
+
+		}
 	}
+	strOutput := strings.TrimSpace(string(output))
+	active := strOutput == FirewallStatusActive
+
+	return &FirewallInfo{
+		Active: active,
+	}, nil
 }
 
 const FirewallService = "firewalld.service"

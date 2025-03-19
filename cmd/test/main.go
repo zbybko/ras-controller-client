@@ -55,7 +55,7 @@ func FirewallTest() {
 	}
 	if !firewallInfo.Active {
 		log.Debug("Firewall inactive")
-		firewall.Disable()
+		firewall.Enable()
 	} else {
 		log.Debug("Firewall active")
 		firewall.Disable()
