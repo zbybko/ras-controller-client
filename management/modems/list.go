@@ -53,7 +53,7 @@ func (m *ModemInfo) Enable() error {
 }
 
 func (m *ModemInfo) GetSignal() (*ModemSignal, error) {
-	output, err := utils.Execute("mmcli", mmcli.ModemFlag(m.DBusPath), "--get-signal", mmcli.JsonOutputFlag)
+	output, err := utils.Execute("mmcli", mmcli.ModemFlag(m.DBusPath), "--signal-get", mmcli.JsonOutputFlag)
 	if err != nil {
 		log.Errorf("Failed get signal: %s", err)
 		return nil, err
@@ -67,4 +67,14 @@ func (m *ModemInfo) GetSignal() (*ModemSignal, error) {
 		return nil, err
 	}
 	return &info.Signal, nil
+}
+
+func (m *ModemInfo) SetPowerStateOff() error {
+	_, err := utils.Execute("mmcli", mmcli.ModemFlag(m.DBusPath), "--set-power-state-off")
+	return err
+}
+
+func (m *ModemInfo) SetPowerStateOn() error {
+	_, err := utils.Execute("mmcli", mmcli.ModemFlag(m.DBusPath), "--set-power-state-on")
+	return err
 }

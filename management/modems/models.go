@@ -1,6 +1,7 @@
 package modems
 
 type ModemInfo struct {
+	// Third Generation Partnership Project - 3GPP
 	ThreeGpp struct {
 		FiveGnr struct {
 			RegistrationSettings struct {
