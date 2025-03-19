@@ -40,5 +40,5 @@ func returnStatus(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 	}
-	c.JSON(http.StatusOK, gin.H{"active": status.Active})
+	c.JSON(http.StatusOK, status)
 }
