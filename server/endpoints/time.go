@@ -23,18 +23,20 @@ func TimezoneHandler() gin.HandlerFunc {
 
 func SetTimezoneHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var zone string
-		if err := ctx.ShouldBindJSON(&zone); err != nil {
+		var request struct {
+			Timezone string `json:"timezone"`
+		}
+		if err := ctx.ShouldBindJSON(&request); err != nil {
 			log.Errorf("Error while binding timezone: %s", err)
 			ctx.AbortWithStatus(http.StatusBadRequest)
 		}
-		err := time.SetTimeZone(zone)
+		err := time.SetTimeZone(request.Timezone)
 		if err != nil {
 			log.Errorf("Error while setting timezone: %s", err)
 			ctx.AbortWithStatus(http.StatusInternalServerError)
 		}
 
-		ctx.JSON(http.StatusOK, gin.H{"timezone": zone})
+		ctx.JSON(http.StatusOK, gin.H{"timezone": request.Timezone})
 	}
 }
 
