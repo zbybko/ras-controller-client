@@ -1,6 +1,7 @@
 package firewall
 
 import (
+	"fmt"
 	"os/exec"
 	"ras/utils"
 	"strings"
@@ -8,12 +9,20 @@ import (
 	"github.com/charmbracelet/log"
 )
 
+var NoServiceErr = fmt.Errorf("there is not firewall service in system")
+
 func Enable() error {
+	if !ServiceExists() {
+		return NoServiceErr
+	}
 	_, err := utils.Execute("systemctl", "enable", "--now", FirewallService)
 	return err
 }
 
 func Disable() error {
+	if !ServiceExists() {
+		return NoServiceErr
+	}
 	_, err := utils.Execute("systemctl", "disable", "--now", FirewallService)
 	return err
 }
@@ -25,7 +34,15 @@ type FirewallInfo struct {
 const ExitCodeInactive = 3
 const ExitCodeNormal = 0
 
+func ServiceExists() bool {
+	_, err := utils.Execute("systemctl", "status", FirewallService)
+	return err != nil
+}
+
 func Status() (*FirewallInfo, error) {
+	if !ServiceExists() {
+		return nil, NoServiceErr
+	}
 	output, err := utils.Execute("systemctl", "is-active", FirewallService)
 
 	// Pass if error is 'exit code 3'

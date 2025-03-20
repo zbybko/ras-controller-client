@@ -42,3 +42,9 @@ func returnStatus(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, status)
 }
+
+func CanManageFirewallHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"canManage": firewall.ServiceExists()})
+	}
+}
