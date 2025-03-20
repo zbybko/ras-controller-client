@@ -24,3 +24,6 @@ system:
 
 client:
   address: http://localhost:5173
+
+chrony:
+  pool_as_server: true

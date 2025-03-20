@@ -9,8 +9,15 @@ import (
 
 const (
 	serverToken      = "server"
+	poolToken        = "pool"
 	ChronyConfigFile = "/etc/chrony.conf"
 )
+
+type TimeSyncServer interface {
+	Address() string
+	ToString() string
+	Options() []string
+}
 
 func Restart() error {
 	if err := utils.CheckRoot(); err != nil {
@@ -26,20 +33,29 @@ type ChronyParameter struct {
 	Options []string
 }
 
-// func (c1 *ChronyParameter) Compare(c2 *ChronyParameter) bool {
-// 	return c1 == c2
-// }
-
 type ChronyConfig struct {
-	Servers    []NtpServer
+	Servers    []TimeSyncServer
+	Pools      []TimeSyncServer
 	Parameters []ChronyParameter
 }
 type NtpServer struct {
 	ChronyParameter
 }
+type NtpPool struct {
+	ChronyParameter
+}
 
 func (s *NtpServer) Address() string {
 	return s.Value
+}
+func (s *NtpServer) Options() []string {
+	return s.ChronyParameter.Options
+}
+func (s *NtpPool) Address() string {
+	return s.Value
+}
+func (s *NtpPool) Options() []string {
+	return s.ChronyParameter.Options
 }
 func NewNtpServer(address string) *NtpServer {
 	param := ChronyParameter{

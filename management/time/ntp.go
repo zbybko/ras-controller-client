@@ -5,6 +5,7 @@ import (
 	"slices"
 
 	"github.com/charmbracelet/log"
+	"github.com/spf13/viper"
 )
 
 type TimeSyncManager interface {
@@ -13,7 +14,7 @@ type TimeSyncManager interface {
 	RemoveNtpServer(string) error
 }
 
-func GetNtpServers() ([]chrony.NtpServer, error) {
+func GetNtpServers() ([]chrony.TimeSyncServer, error) {
 
 	config, err := chrony.ParseConfigFile(chrony.ChronyConfigFile)
 	if err != nil {
@@ -21,16 +22,21 @@ func GetNtpServers() ([]chrony.NtpServer, error) {
 		return nil, err
 	}
 
+	if viper.GetBool("chrony.pool_as_server") {
+
+		return append(config.Servers, config.Pools...), nil
+	}
+
 	return config.Servers, nil
 }
 
-func AddNtpServer(server *chrony.NtpServer) error {
+func AddNtpServer(server chrony.TimeSyncServer) error {
 	config, err := chrony.ParseConfigFile(chrony.ChronyConfigFile)
 	if err != nil {
 		log.Errorf("Error while parsing server from chrony config: %s", err)
 		return err
 	}
-	config.Servers = append(config.Servers, *server)
+	config.Servers = append(config.Servers, server)
 
 	log.Debug("Saving chrony config")
 	err = config.Save(chrony.ChronyConfigFile)
@@ -41,7 +47,7 @@ func AddNtpServer(server *chrony.NtpServer) error {
 	}
 	return chrony.Restart()
 }
-func RemoveNtpServer(server *chrony.NtpServer) error {
+func RemoveNtpServer(server chrony.NtpServer) error {
 	config, err := chrony.ParseConfigFile(chrony.ChronyConfigFile)
 	if err != nil {
 		log.Errorf("Error while parsing server from chrony config: %s", err)

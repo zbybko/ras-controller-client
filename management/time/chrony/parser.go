@@ -42,8 +42,8 @@ func ParseConfigFile(filename string) (*ChronyConfig, error) {
 			logger.Debugf("Line %d: Empty", lineIndex)
 			continue
 		}
-		if line[0] == '#' {
-			logger.Debugf("Line %d: Empty", lineIndex)
+		if isCommentSymbol(line[0]) {
+			logger.Debugf("Line %d: Commented", lineIndex)
 			continue
 		}
 		tokens := strings.Split(line, " ")
@@ -51,42 +51,55 @@ func ParseConfigFile(filename string) (*ChronyConfig, error) {
 		case serverToken:
 			server, err := parseServer(tokens)
 			if err != nil {
-				return &config, fmt.Errorf("failded to parse file, line %d: %s", lineIndex, err)
+				return &config, fmt.Errorf("failed to parse file, line %d: %s", lineIndex, err)
 			}
-			config.Servers = append(config.Servers, *server)
+			config.Servers = append(config.Servers, server)
 			logger.Debugf("Line %d: Server '%s'", lineIndex, server.Address())
+		case poolToken:
+			pool, err := parsePool(tokens)
+			if err != nil {
+				return &config, fmt.Errorf("failed to parse file, line %d: %s", lineIndex, err)
+			}
+			config.Pools = append(config.Pools, pool)
+			logger.Debugf("Line %d: Pool '%s'", lineIndex, pool.Address())
 		default:
 			logger.Debugf("Line %d: Other parameter '%s'", lineIndex, tokens[0])
-			param, err := parseTokens(tokens)
+			param, err := parseChronyParameter(tokens, "", 0)
 			if err != nil {
-				return &config, fmt.Errorf("failded to parse file, line %d: %s", lineIndex, err)
+				return &config, fmt.Errorf("failed to parse file, line %d: %s", lineIndex, err)
 			}
 			config.Parameters = append(config.Parameters, *param)
 		}
 	}
 
 	return &config, nil
-
 }
 
-func parseServer(tokens []string) (*NtpServer, error) {
-
-	if len(tokens) < 2 {
-		return nil, fmt.Errorf("invalid server specification, too little tokens")
-	}
-	if tokens[0] != serverToken {
-		return nil, fmt.Errorf("not a server specification, first token must be a '%s' but there is '%s'", serverToken, tokens[0])
-	}
-
-	server := NtpServer{
-		ChronyParameter{Name: serverToken, Value: tokens[1]},
-	}
-	if len(tokens) > 2 {
-		server.Options = tokens[2:]
-	}
-	return &server, nil
+func isCommentSymbol(sym byte) bool {
+	return sym == '#' || sym == '!' || sym == '%' || sym == ';'
 }
-func parseTokens(tokens []string) (*ChronyParameter, error) {
+func parsePool(tokens []string) (*NtpPool, error) {
+	param, err := parseChronyParameter(tokens, poolToken, 2)
+
+	if err != nil {
+		return nil, err
+	}
+
+	pool := NtpPool{
+		ChronyParameter: *param,
+	}
+	return &pool, nil
+}
+
+// pass name = "" to skip check
+// pass minLength = {<=0} to skip check
+func parseChronyParameter(tokens []string, name string, minLength int) (*ChronyParameter, error) {
+	if name != "" && tokens[0] != name {
+		return nil, fmt.Errorf("invalid parameter specification, first token must be a '%s' but there is '%s'", name, tokens[0])
+	}
+	if minLength > 0 && len(tokens) < minLength {
+		return nil, fmt.Errorf("invalid parameter specification, too little tokens")
+	}
 	param := ChronyParameter{}
 	if len(tokens) >= 1 {
 		param.Name = tokens[0]
@@ -95,13 +108,21 @@ func parseTokens(tokens []string) (*ChronyParameter, error) {
 		param.Value = tokens[1]
 	}
 	if len(tokens) > 2 {
-		param.Options = tokens[:2]
+		param.Options = tokens[2:]
 	}
 
 	return &param, nil
-
 }
-
+func parseServer(tokens []string) (*NtpServer, error) {
+	param, err := parseChronyParameter(tokens, serverToken, 2)
+	if err != nil {
+		return nil, err
+	}
+	server := NtpServer{
+		ChronyParameter: *param,
+	}
+	return &server, nil
+}
 func (c *ChronyConfig) Save(filename string) error {
 
 	file, err := os.Create(filename)

@@ -62,7 +62,7 @@ func NtpInfo() gin.HandlerFunc {
 			Active: active,
 		}
 		for _, ntp := range servers {
-			r.Servers = append(r.Servers, NtpServer{Address: ntp.Address(), Options: ntp.Options})
+			r.Servers = append(r.Servers, NtpServer{Address: ntp.Address(), Options: ntp.Options()})
 		}
 		ctx.JSON(http.StatusOK, r)
 	}
@@ -82,7 +82,7 @@ func AddNtpServerHandler() gin.HandlerFunc {
 			return
 		}
 		server := chrony.NewNtpServer(r.Address)
-		server.Options = r.Options
+		server.ChronyParameter.Options = r.Options
 		err := time.AddNtpServer(server)
 		if err != nil {
 			log.Errorf("Error while adding NTP server: %s", err)
@@ -105,7 +105,7 @@ func RemoveNtpServerHandler() gin.HandlerFunc {
 			return
 		}
 		server := chrony.NewNtpServer(r.Address)
-		err := time.RemoveNtpServer(server)
+		err := time.RemoveNtpServer(*server)
 		if err != nil {
 			log.Errorf("Error while removing NTP server: %s", err)
 			ctx.AbortWithStatus(http.StatusInternalServerError)
