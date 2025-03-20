@@ -117,3 +117,18 @@ type ModemSignal struct {
 		Rssi      string `json:"rssi"`
 	} `json:"umts"`
 }
+
+type BearerInfo struct {
+	DBusPath   string `json:"dbus-path"`
+	Properties struct {
+		Apn      string `json:"apn"`
+		IpType   string `json:"ip-type"`
+		User     string `json:"user"`
+		Password string `json:"password"`
+	} `json:"properties"`
+	Status struct {
+		Connected string `json:"connected"` // 'yes' for true
+		Interface string `json:"interface"`
+	} `json:"status"`
+	Type string `json:"type"`
+}

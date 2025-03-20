@@ -2,6 +2,7 @@ package modems
 
 import (
 	"encoding/json"
+	"fmt"
 	"ras/management/mmcli"
 	"ras/utils"
 
@@ -77,4 +78,14 @@ func (m *ModemInfo) SetPowerStateOff() error {
 func (m *ModemInfo) SetPowerStateOn() error {
 	_, err := utils.Execute("mmcli", mmcli.ModemFlag(m.DBusPath), "--set-power-state-on")
 	return err
+}
+func (m *ModemInfo) GetBearer() (*BearerInfo, error) {
+	if len(m.Generic.Bearers) == 0 {
+		return nil, fmt.Errorf("no bearers")
+	}
+	_, err := utils.Execute("mmcli", mmcli.BearerFlag(m.Generic.Bearers[0]), mmcli.JsonOutputFlag)
+	var info struct {
+		Bearer BearerInfo `json:"bearer"`
+	}
+	return &info.Bearer, err
 }
