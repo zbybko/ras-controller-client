@@ -9,18 +9,16 @@ import (
 
 func SimInfoHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		simName, found := c.Params.Get("sim")
 
-		var request struct {
-			Sim string `json:"sim"`
-		}
-		if err := c.ShouldBindJSON(&request); err != nil || request.Sim == "" {
+		if !found || simName == "" {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"message": "No sim specified",
+				"message": "Invalid sim specified",
 			})
 			return
 		}
 
-		info, err := sim.Get(request.Sim)
+		info, err := sim.Get(simName)
 
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
