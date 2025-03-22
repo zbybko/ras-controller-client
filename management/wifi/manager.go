@@ -1,6 +1,6 @@
 package wifi
 
-type WiFiManager interface {
+type Manager interface {
 	Status() (*WiFiInfo, error)
 	Enable() error
 	Disable() error
