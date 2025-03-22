@@ -5,6 +5,7 @@ import (
 	"ras/management/firewall"
 	"ras/management/modems"
 	"ras/management/time"
+	"ras/storage"
 
 	"github.com/charmbracelet/log"
 	"github.com/spf13/viper"
@@ -34,9 +35,6 @@ func main() {
 	// 	log.Fatalf("Failed add NTP server: %s", err)
 	// }
 
-	// pass := storage.GetPassword()
-	// log.Infof("Password hash: %s", pass)
-
 	modemList, _ := modems.List()
 	log.Infof("Modems: %v", modemList)
 	for _, m := range modemList {
@@ -44,7 +42,13 @@ func main() {
 		log.Infof("Modem: %v", mInfo)
 	}
 	log.Info("Done")
-	FirewallTest()
+	// FirewallTest()
+	TestPasswordStorage()
+}
+
+func TestPasswordStorage() {
+	pass := storage.GetPassword()
+	log.Infof("Password hash: %s", pass)
 }
 
 func FirewallTest() {
