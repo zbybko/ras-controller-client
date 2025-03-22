@@ -72,8 +72,8 @@ func New() *gin.Engine {
 	modems := api.Group("/modems")
 	{
 		modems.GET("/list", endpoints.ModemsListHandler())
-		modems.POST("/enable/:modem", endpoints.DisableModemHandler())
-		modems.POST("/disable/:modem", endpoints.EnableModemHandler())
+		modems.POST("/disable/:modem", endpoints.DisableModemHandler())
+		modems.POST("/enable/:modem", endpoints.EnableModemHandler())
 	}
 	api.POST("/sim", endpoints.SimInfoHandler())
 	return srv
