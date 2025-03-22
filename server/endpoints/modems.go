@@ -49,3 +49,34 @@ func ModemsListHandler() gin.HandlerFunc {
 		ctx.JSON(http.StatusOK, gin.H{"modems": info})
 	}
 }
+func DisableModemHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		modemId := ctx.Param("modem")
+		modem, err := modems.Get(modemId)
+		if err != nil {
+			log.Errorf("Failed get modem '%s' info: %s", modem, err)
+			ctx.AbortWithStatus(http.StatusNotFound)
+		}
+		if err = modem.Disable(); err != nil {
+			log.Errorf("Failed disable modem '%s': %s", modem, err)
+			ctx.AbortWithStatus(http.StatusInternalServerError)
+		}
+		ctx.JSON(http.StatusOK, gin.H{"enabled": false})
+	}
+}
+
+func EnableModemHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		modemId := ctx.Param("modem")
+		modem, err := modems.Get(modemId)
+		if err != nil {
+			log.Errorf("Failed get modem '%s' info: %s", modem, err)
+			ctx.AbortWithStatus(http.StatusNotFound)
+		}
+		if err = modem.Enable(); err != nil {
+			log.Errorf("Failed enable modem '%s': %s", modem, err)
+			ctx.AbortWithStatus(http.StatusInternalServerError)
+		}
+		ctx.JSON(http.StatusOK, gin.H{"enabled": true})
+	}
+}

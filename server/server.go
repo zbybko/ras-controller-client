@@ -69,7 +69,12 @@ func New() *gin.Engine {
 		wifi.GET("/can-manage", endpoints.CanManageWiFiHandler())
 	}
 	api.POST("/auth/", endpoints.Authorization())
-	api.GET("/modems", endpoints.ModemsListHandler())
+	modems := api.Group("/modems")
+	{
+		modems.GET("/list", endpoints.ModemsListHandler())
+		modems.POST("/enable/:modem", endpoints.DisableModemHandler())
+		modems.POST("/disable/:modem", endpoints.EnableModemHandler())
+	}
 	api.POST("/sim", endpoints.SimInfoHandler())
 	return srv
 }
