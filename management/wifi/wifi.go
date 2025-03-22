@@ -2,6 +2,7 @@ package wifi
 
 import (
 	"fmt"
+	"ras/management/systemctl"
 	"ras/management/wifi/hostapd"
 	"ras/utils"
 	"regexp"
@@ -10,9 +11,13 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-var ErrNoWiFiService = fmt.Errorf("Wi-Fi service is not available on this system")
+var ErrNoWiFiService = fmt.Errorf("wi-fi service is not available on this system")
 
-type RealManager struct {
+const (
+	HostapdService = "hostapd.service"
+)
+
+type HostapdManager struct {
 	config        *hostapd.Config
 	serviceExists bool
 }
@@ -32,13 +37,14 @@ func NewManager() Manager {
 		log.Errorf("Failed to create wifi manager: %s", err)
 		return nil
 	}
-	return &RealManager{
-		config: config,
+	return &HostapdManager{
+		config:        config,
+		serviceExists: systemctl.ServiceExists(HostapdService),
 	}
 }
 
 // Проверка статуса Wi-Fi
-func (r *RealManager) Status() (*WiFiInfo, error) {
+func (r *HostapdManager) Status() (*WiFiInfo, error) {
 	if !r.ServiceExists() {
 		return nil, ErrNoWiFiService
 	}
@@ -64,7 +70,7 @@ func (r *RealManager) Status() (*WiFiInfo, error) {
 }
 
 // Включить Wi-Fi
-func (r *RealManager) Enable() error {
+func (r *HostapdManager) Enable() error {
 	if !r.ServiceExists() {
 		return ErrNoWiFiService
 	}
@@ -84,7 +90,7 @@ func (r *RealManager) Enable() error {
 }
 
 // Выключить Wi-Fi
-func (r *RealManager) Disable() error {
+func (r *HostapdManager) Disable() error {
 	if !r.ServiceExists() {
 		return ErrNoWiFiService
 	}
@@ -103,14 +109,13 @@ func (r *RealManager) Disable() error {
 	return nil
 }
 
-// Проверка доступности Wi-Fi сервиса
-func (r *RealManager) ServiceExists() bool {
-	_, err := utils.Execute("mmcli", "--version")
-	return err == nil
+// Проверка доступности Wi-Fi сервиса ('hostapd.service')
+func (r *HostapdManager) ServiceExists() bool {
+	return r.serviceExists
 }
 
 // Установить скрытие SSID
-func (r *RealManager) SetSSIDHidden(hidden bool) error {
+func (r *HostapdManager) SetSSIDHidden(hidden bool) error {
 	if !r.ServiceExists() {
 		return ErrNoWiFiService
 	}
@@ -134,7 +139,7 @@ func (r *RealManager) SetSSIDHidden(hidden bool) error {
 }
 
 // Изменить SSID
-func (r *RealManager) SetSSID(name string) error {
+func (r *HostapdManager) SetSSID(name string) error {
 	if !r.ServiceExists() {
 		return ErrNoWiFiService
 	}
@@ -154,7 +159,7 @@ func (r *RealManager) SetSSID(name string) error {
 }
 
 // Установить пароль
-func (r *RealManager) SetPassword(password string) error {
+func (r *HostapdManager) SetPassword(password string) error {
 	if !r.ServiceExists() {
 		return ErrNoWiFiService
 	}
@@ -174,7 +179,7 @@ func (r *RealManager) SetPassword(password string) error {
 }
 
 // Установить тип безопасности
-func (r *RealManager) SetSecurityType(wpa3 bool) error {
+func (r *HostapdManager) SetSecurityType(wpa3 bool) error {
 	if !r.ServiceExists() {
 		return ErrNoWiFiService
 	}
@@ -198,7 +203,7 @@ func (r *RealManager) SetSecurityType(wpa3 bool) error {
 }
 
 // Установить канал
-func (r *RealManager) SetChannel(channel int) error {
+func (r *HostapdManager) SetChannel(channel int) error {
 	if !r.ServiceExists() {
 		return ErrNoWiFiService
 	}

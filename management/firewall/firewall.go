@@ -3,6 +3,7 @@ package firewall
 import (
 	"fmt"
 	"os/exec"
+	"ras/management/systemctl"
 	"ras/utils"
 	"strings"
 
@@ -15,16 +16,14 @@ func Enable() error {
 	if !ServiceExists() {
 		return NoServiceErr
 	}
-	_, err := utils.Execute("systemctl", "enable", "--now", FirewallService)
-	return err
+	return systemctl.Enable(FirewallService)
 }
 
 func Disable() error {
 	if !ServiceExists() {
 		return NoServiceErr
 	}
-	_, err := utils.Execute("systemctl", "disable", "--now", FirewallService)
-	return err
+	return systemctl.Disable(FirewallService)
 }
 
 type FirewallInfo struct {
@@ -35,8 +34,7 @@ const ExitCodeInactive = 3
 const ExitCodeNormal = 0
 
 func ServiceExists() bool {
-	_, err := utils.Execute("systemctl", "status", FirewallService)
-	return err != nil
+	return systemctl.ServiceExists(FirewallService)
 }
 
 func Status() (*FirewallInfo, error) {

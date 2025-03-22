@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var WiFiManager wifi.Manager = wifi.NewMockWiFiManager()
+var WiFiManager = wifi.NewManager()
 
 // Включить Wi-Fi
 func EnableWiFi(c *gin.Context) {
