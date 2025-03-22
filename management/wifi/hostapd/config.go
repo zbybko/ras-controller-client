@@ -24,7 +24,9 @@ func New() (*Config, error) {
 	defer configFile.Close()
 
 	scanner := bufio.NewScanner(configFile)
-	conf := Config{}
+	conf := Config{
+		conf: make(map[string]string),
+	}
 	for scanner.Scan() {
 		line := scanner.Text()
 		if line == "" || line[0] == '#' {
