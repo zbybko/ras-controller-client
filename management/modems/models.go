@@ -105,8 +105,10 @@ type ModemSignal struct {
 		Snr       string `json:"snr"`
 		ErrorRate string `json:"error-rate"`
 	} `json:"lte"`
-	RefreshRate string `json:"refresh.rate"`
-	Threshold   struct {
+	Refresh struct {
+		Rate string `json:"rate"`
+	} `json:"refresh"`
+	Threshold struct {
 		ErrorRate string `json:"error-rate"`
 		Rssi      string `json:"rssi"`
 	} `json:"threshold"`
