@@ -27,7 +27,7 @@ func Execute(command string, args ...string) ([]byte, error) {
 	wrapped := wrapCommand(command, args...)
 	logger.Infof("Command to execute `%s`", wrapped)
 
-	cmd := exec.Command("bash", "-c", wrapped)
+	cmd := exec.Command("bash", "-c", fmt.Sprintf(`"%s"`, wrapped))
 	logger.Debugf("Real command to execute `%s`", cmd.String())
 
 	output, err := cmd.Output()
