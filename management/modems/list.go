@@ -56,8 +56,10 @@ func (m *ModemInfo) Enable() error {
 func (m *ModemInfo) GetSignal() (*ModemSignal, error) {
 	output, err := utils.Execute("mmcli", mmcli.ModemFlag(m.DBusPath), "--signal-get", mmcli.JsonOutputFlag)
 	if err != nil {
-		log.Errorf("Failed get signal: %s", err)
-		return nil, err
+		log.Warnf("Error occurred while getting signal, and was ignored: %s", err)
+		log.Warn("This error should not be ignored! Call Katy248 to fix it ASAP")
+		// log.Errorf("Failed get signal: %s", err)
+		// return nil, err
 	}
 	info := struct {
 		Signal ModemSignal `json:"modem.signal"`
