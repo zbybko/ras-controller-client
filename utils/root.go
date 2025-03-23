@@ -5,6 +5,8 @@ import (
 	"os"
 	"os/exec"
 	"ras/config"
+
+	"github.com/charmbracelet/log"
 )
 
 const RootUserID = 0
@@ -21,13 +23,18 @@ func wrapCommand(command string, args ...string) string {
 	return exec.Command(command, args...).String()
 }
 
-func Execute(command string, args ...string) ([]byte, error) {
+func execute(wrapInQuotes bool, command string, args ...string) ([]byte, error) {
 	logger := config.GetLogger("CLI execution")
 
 	wrapped := wrapCommand(command, args...)
 	logger.Infof("Command to execute `%s`", wrapped)
 
-	cmd := exec.Command("bash", "-c", fmt.Sprintf(`"%s"`, wrapped))
+	if wrapInQuotes {
+		log.Debug("Wrapping command in quotes")
+		wrapped = fmt.Sprintf("\"%s\"", wrapped)
+	}
+
+	cmd := exec.Command("bash", "-c", wrapped)
 	logger.Debugf("Real command to execute `%s`", cmd.String())
 
 	output, err := cmd.Output()
@@ -37,4 +44,13 @@ func Execute(command string, args ...string) ([]byte, error) {
 		return nil, err
 	}
 	return output, err
+
+}
+
+func ExecuteWrap(command string, args ...string) ([]byte, error) {
+	return execute(true, command, args...)
+}
+
+func Execute(command string, args ...string) ([]byte, error) {
+	return execute(false, command, args...)
 }
