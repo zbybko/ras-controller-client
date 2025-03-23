@@ -69,6 +69,8 @@ func (m *ModemInfo) GetSignal() (*ModemSignal, error) {
 		log.Errorf("Failed parse modem signal info from JSON: %s", err)
 		return nil, err
 	}
+	log.Debugf("Modem signal json string: %s", string(output))
+	log.Debugf("Modem signal: %+v", info.Signal)
 	return &info.Signal, nil
 }
 
