@@ -62,7 +62,9 @@ func (m *ModemInfo) GetSignal() (*ModemSignal, error) {
 		// return nil, err
 	}
 	info := struct {
-		Signal ModemSignal `json:"modem.signal"`
+		Modem struct {
+			Signal ModemSignal `json:"signal"`
+		} `json:"modem"`
 	}{}
 	err = json.Unmarshal(output, &info)
 	if err != nil {
@@ -70,8 +72,8 @@ func (m *ModemInfo) GetSignal() (*ModemSignal, error) {
 		return nil, err
 	}
 	log.Debugf("Modem signal json string: %s", string(output))
-	log.Debugf("Modem signal: %+v", info.Signal)
-	return &info.Signal, nil
+	log.Debugf("Modem signal: %+v", info.Modem.Signal)
+	return &info.Modem.Signal, nil
 }
 
 func (m *ModemInfo) SetPowerStateOff() error {
