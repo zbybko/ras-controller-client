@@ -80,3 +80,18 @@ func EnableModemHandler() gin.HandlerFunc {
 		ctx.JSON(http.StatusOK, gin.H{"enabled": true})
 	}
 }
+func GetModemSignalHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		modemId := ctx.Param("modem")
+		modem, err := modems.Get(modemId)
+		if err != nil {
+			log.Errorf("Failed get modem '%s' info: %s", modem, err)
+			ctx.AbortWithStatus(http.StatusNotFound)
+		}
+		signal, err := modem.GetSignal()
+		if err != nil {
+			log.Errorf("Failed get signal for modem '%s': %s", modem, err)
+		}
+		ctx.JSON(http.StatusOK, signal)
+	}
+}
