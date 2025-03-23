@@ -28,4 +28,4 @@ client:
 chrony:
   pool_as_server: true
 
-use_mock: true
+mock: true

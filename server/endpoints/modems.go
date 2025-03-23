@@ -7,6 +7,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 )
 
 type ModemResponse struct {
@@ -80,18 +81,33 @@ func EnableModemHandler() gin.HandlerFunc {
 		ctx.JSON(http.StatusOK, gin.H{"enabled": true})
 	}
 }
-func GetModemSignalHandler() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		modemId := ctx.Param("modem")
-		modem, err := modems.Get(modemId)
-		if err != nil {
-			log.Errorf("Failed get modem '%s' info: %s", modem, err)
-			ctx.AbortWithStatus(http.StatusNotFound)
-		}
-		signal, err := modem.GetSignal()
-		if err != nil {
-			log.Errorf("Failed get signal for modem '%s': %s", modem, err)
-		}
-		ctx.JSON(http.StatusOK, signal)
+func GetModemSignalHandlers() []gin.HandlerFunc {
+	if viper.GetBool("mock") {
+		return []gin.HandlerFunc{MockNotify(), mockGetModemSignal}
 	}
+	return []gin.HandlerFunc{getModemSignal}
+}
+func mockGetModemSignal(ctx *gin.Context) {
+	signal := modems.ModemSignal{}
+	signal.Refresh.Rate = "10"
+	signal.Lte.Rsrp = "110"
+	signal.Lte.Rsrq = "110"
+	signal.Lte.Rssi = "110"
+	signal.Lte.ErrorRate = "--"
+
+	ctx.JSON(http.StatusOK, signal)
+}
+
+func getModemSignal(ctx *gin.Context) {
+	modemId := ctx.Param("modem")
+	modem, err := modems.Get(modemId)
+	if err != nil {
+		log.Errorf("Failed get modem '%s' info: %s", modem, err)
+		ctx.AbortWithStatus(http.StatusNotFound)
+	}
+	signal, err := modem.GetSignal()
+	if err != nil {
+		log.Errorf("Failed get signal for modem '%s': %s", modem, err)
+	}
+	ctx.JSON(http.StatusOK, signal)
 }
