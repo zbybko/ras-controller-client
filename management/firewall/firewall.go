@@ -25,9 +25,6 @@ type FirewallInfo struct {
 	Active bool `json:"active"`
 }
 
-const ExitCodeInactive = 3
-const ExitCodeNormal = 0
-
 func ServiceExists() bool {
 	return systemctl.ServiceExists(FirewallService)
 }
@@ -44,6 +41,3 @@ func Status() (*FirewallInfo, error) {
 }
 
 const FirewallService = "firewalld.service"
-
-const FirewallStatusActive = "active"
-const FirewallStatusInactive = "inactive"
