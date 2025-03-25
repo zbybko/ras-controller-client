@@ -76,6 +76,7 @@ func New() *gin.Engine {
 		modems.POST("/enable/:modem", endpoints.EnableModemHandler())
 		modems.GET("/signal/:modem", endpoints.GetModemSignalHandlers()...)
 	}
+	api.GET("/journal/:journal", endpoints.JournalsHandler())
 	api.POST("/sim/:sim", endpoints.SimInfoHandler())
 	return srv
 }

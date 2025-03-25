@@ -11,10 +11,12 @@ import (
 
 const RootUserID = 0
 
+var ErrNotRootUser = fmt.Errorf("current user is not root")
+
 // Checks user is root, if not return error
 func CheckRoot() error {
 	if os.Geteuid() != RootUserID {
-		return fmt.Errorf("current user is not root")
+		return ErrNotRootUser
 	}
 	return nil
 }

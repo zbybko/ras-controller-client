@@ -3,6 +3,7 @@ package main
 import (
 	"ras/config"
 	"ras/management/firewall"
+	"ras/management/journals"
 	"ras/management/modems"
 	"ras/management/time"
 	"ras/storage"
@@ -43,7 +44,22 @@ func main() {
 	}
 	log.Info("Done")
 	// FirewallTest()
-	TestPasswordStorage()
+	// TestPasswordStorage()
+	JournalsTest()
+}
+func JournalsTest() {
+	core, err := journals.Core()
+	if err != nil {
+		log.Errorf("Failed get journals: %s", err)
+		return
+	}
+	log.Infof("Journals: %v", core)
+	sys, err := journals.System()
+	if err != nil {
+		log.Errorf("Failed get journals: %s", err)
+		return
+	}
+	log.Infof("Journals: %v", sys)
 }
 
 func TestPasswordStorage() {
