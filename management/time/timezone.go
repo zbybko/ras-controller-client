@@ -2,7 +2,6 @@ package time
 
 import (
 	"fmt"
-	"os/exec"
 	"ras/utils"
 
 	"github.com/charmbracelet/log"
@@ -22,8 +21,7 @@ func SetTimeZone(timezone string) error {
 		log.Warn("Operation is not allowed for non-root users")
 		return err
 	}
-	command := exec.Command("timedatectl", "set-timezone", inQuotes(timezone))
-	err := command.Run()
+	_, err := utils.Execute("timedatectl", "set-timezone", inQuotes(timezone))
 	return err
 }
 
