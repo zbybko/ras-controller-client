@@ -78,6 +78,7 @@ func New() *gin.Engine {
 	}
 	api.GET("/journal/:journal", endpoints.JournalsHandler())
 	api.POST("/sim/:sim", endpoints.SimInfoHandler())
+	api.POST("/reboot", endpoints.RebootHandler())
 	return srv
 }
 
