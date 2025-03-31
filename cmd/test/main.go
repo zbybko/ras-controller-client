@@ -2,6 +2,7 @@ package main
 
 import (
 	"ras/config"
+	"ras/management/dhcp"
 	"ras/management/firewall"
 	"ras/management/journals"
 	"ras/management/modems"
@@ -45,7 +46,20 @@ func main() {
 	log.Info("Done")
 	// FirewallTest()
 	// TestPasswordStorage()
-	JournalsTest()
+	// JournalsTest()
+	DhcpTest()
+}
+func DhcpTest() {
+	status := dhcp.Status()
+	log.Info("DHCP service status", "status", status)
+
+	if !status.Enabled {
+		log.Info("Enabling dhcp")
+		err := dhcp.Enable()
+		if err != nil {
+			log.Fatalf("Failed enable DHCP: %s", err)
+		}
+	}
 }
 func JournalsTest() {
 	core, err := journals.Core()

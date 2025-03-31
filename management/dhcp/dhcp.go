@@ -19,6 +19,9 @@ func Status() *DhcpStatus {
 }
 
 func Enable() error {
+	if err := utils.CheckRoot(); err != nil {
+		return err
+	}
 	return errors.Join(
 		systemctl.Enable(DhcpService),
 		utils.ExecuteErr("firewall-cmd", "--permament", "--add-service=dhcp"),
@@ -26,5 +29,8 @@ func Enable() error {
 	)
 }
 func Disable() error {
+	if err := utils.CheckRoot(); err != nil {
+		return err
+	}
 	return systemctl.Disable(DhcpService)
 }

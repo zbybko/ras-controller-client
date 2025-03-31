@@ -76,6 +76,12 @@ func New() *gin.Engine {
 		modems.POST("/enable/:modem", endpoints.EnableModemHandler())
 		modems.GET("/signal/:modem", endpoints.GetModemSignalHandlers()...)
 	}
+	dhcp := api.Group("/dhcp")
+	{
+		dhcp.GET("/status", endpoints.DhcpStatusHandler())
+		dhcp.POST("/enable", endpoints.EnableDhcpHandler())
+		dhcp.POST("/disable", endpoints.DisableDhcpHandler())
+	}
 	api.GET("/journal/:journal", endpoints.JournalsHandler())
 	api.POST("/sim/:sim", endpoints.SimInfoHandler())
 	api.POST("/reboot", endpoints.RebootHandler())
