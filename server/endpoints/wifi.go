@@ -1,24 +1,16 @@
 package endpoints
 
 import (
-	"fmt"
 	"net/http"
 	"ras/management/wifi"
+	"ras/management/wifi/hostapd"
 
 	"github.com/gin-gonic/gin"
 )
 
-var WiFiManager = wifi.NewManager()
-
 // Включить Wi-Fi
 func EnableWiFi(c *gin.Context) {
-	if WiFiManager == nil {
-		fmt.Println("WiFiManager is nil")
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "WiFiManager is not initialized"})
-		return
-	}
-
-	if err := WiFiManager.Enable(); err != nil {
+	if err := wifi.Enable(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -28,7 +20,7 @@ func EnableWiFi(c *gin.Context) {
 
 // Выключить Wi-Fi
 func DisableWiFi(c *gin.Context) {
-	if err := WiFiManager.Disable(); err != nil {
+	if err := wifi.Disable(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -38,7 +30,7 @@ func DisableWiFi(c *gin.Context) {
 // Получить статус Wi-Fi
 func WiFiStatus() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		status, err := WiFiManager.Status()
+		status, err := wifi.Status()
 		if err != nil {
 			ctx.AbortWithStatus(http.StatusInternalServerError)
 			return
@@ -58,7 +50,7 @@ func SetSSIDHidden(c *gin.Context) {
 		return
 	}
 
-	if err := WiFiManager.SetSSIDHidden(req.Hidden); err != nil {
+	if err := hostapd.SetSSIDHidden(req.Hidden); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -77,7 +69,7 @@ func SetSSID(c *gin.Context) {
 		return
 	}
 
-	if err := WiFiManager.SetSSID(req.SSID); err != nil {
+	if err := hostapd.SetSSID(req.SSID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -96,7 +88,7 @@ func SetPassword(c *gin.Context) {
 		return
 	}
 
-	if err := WiFiManager.SetPassword(req.Password); err != nil {
+	if err := hostapd.SetPassword(req.Password); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -115,7 +107,7 @@ func SetSecurityType(c *gin.Context) {
 		return
 	}
 
-	if err := WiFiManager.SetSecurityType(req.WPA3); err != nil {
+	if err := hostapd.SetSecurityType(req.WPA3); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -134,7 +126,7 @@ func SetChannel(c *gin.Context) {
 		return
 	}
 
-	if err := WiFiManager.SetChannel(req.Channel); err != nil {
+	if err := hostapd.SetChannel(req.Channel); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -144,17 +136,10 @@ func SetChannel(c *gin.Context) {
 
 // Вспомогательная функция для возврата статуса Wi-Fi
 func returnWiFiStatus(c *gin.Context) {
-	status, err := WiFiManager.Status()
+	status, err := wifi.Status()
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 	c.JSON(http.StatusOK, status)
-}
-
-// Проверка, можно ли управлять Wi-Fi
-func CanManageWiFiHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"canManage": WiFiManager.ServiceExists()})
-	}
 }

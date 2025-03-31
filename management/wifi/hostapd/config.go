@@ -3,8 +3,16 @@ package hostapd
 import (
 	"bufio"
 	"os"
+	"ras/management/systemctl"
+	"strconv"
 	"strings"
+
+	"github.com/charmbracelet/log"
 )
+
+type Config struct {
+	conf map[string]string
+}
 
 const (
 	HostapdConfigFile = "/etc/hostapd/hostapd.conf"
@@ -14,6 +22,8 @@ const (
 	SSIDKey      = "ssid"
 	PasswordKey  = "wps_passphrase"
 	HideSSIDKey  = "ignore_broadcast_ssid"
+	SecurityKey  = "wpa"
+	ChannelKey   = "channel"
 )
 
 func New() (*Config, error) {
@@ -41,10 +51,6 @@ func New() (*Config, error) {
 	return &conf, nil
 }
 
-type Config struct {
-	conf map[string]string
-}
-
 func (c Config) GetSSID() string {
 	return c.conf[SSIDKey]
 }
@@ -57,4 +63,80 @@ const SSIDHidden = "1"
 
 func (c Config) GetHideSSID() bool {
 	return c.conf[HideSSIDKey] == SSIDHidden
+}
+
+func (c Config) GetSecurityType() string {
+	return c.conf[SecurityKey]
+}
+
+func (c Config) GetChannel() int {
+	if val, exists := c.conf[ChannelKey]; exists {
+		val, err := strconv.Atoi(val)
+		if err != nil {
+			log.Errorf("Failed to parseint: %s", err)
+		}
+		return val
+	}
+	return 0
+}
+
+func updateConfig(key, value string) error {
+	input, err := os.ReadFile(HostapdConfigFile)
+	if err != nil {
+		return err
+	}
+
+	lines := strings.Split(string(input), "\n")
+	found := false
+	for i, line := range lines {
+		if strings.HasPrefix(line, key+"=") {
+			lines[i] = key + "=" + value
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		lines = append(lines, key+"="+value)
+	}
+
+	output := strings.Join(lines, "\n")
+	if err := systemctl.Restart("hostapd"); err != nil {
+		log.Errorf("failed to restart hostapd: %s", err)
+		return err
+	}
+
+	return os.WriteFile(HostapdConfigFile, []byte(output), 0644)
+}
+
+func SetSSIDHidden(hidden bool) error {
+	val := "0"
+	if hidden {
+		val = "1"
+	}
+	return updateConfig("ignore_broadcast_ssid", val)
+}
+
+func SetSSID(name string) error {
+	return updateConfig("ssid", name)
+}
+
+func SetPassword(password string) error {
+	return updateConfig("wpa_passphrase", password)
+}
+
+func SetSecurityType(wpa3 bool) error {
+	val := "2"
+	if wpa3 {
+		val = "3"
+	}
+	return updateConfig("wpa", val)
+}
+
+func SetChannel(channel int) error {
+	return updateConfig("channel", strconv.Itoa(channel))
+}
+
+func RestartHostapd() error {
+	return systemctl.Restart("hostapd")
 }
