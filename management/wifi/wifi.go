@@ -45,7 +45,7 @@ func Status() (*WiFiInfo, error) {
 }
 
 func Enable() error {
-	err := systemctl.Enable("hostapd")
+	err := systemctl.Enable(hostapd.Service)
 	if err != nil {
 		log.Errorf("Failed to enable Wi-Fi: %s", err)
 		return err
@@ -55,7 +55,7 @@ func Enable() error {
 }
 
 func Disable() error {
-	err := systemctl.Disable("hostapd")
+	err := systemctl.Disable(hostapd.Service)
 	if err != nil {
 		log.Errorf("Failed to disable Wi-Fi: %s", err)
 		return err

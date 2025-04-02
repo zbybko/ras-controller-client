@@ -17,6 +17,8 @@ type Config struct {
 const (
 	HostapdConfigFile = "/etc/hostapd/hostapd.conf"
 
+	Service = "hostapd.service"
+
 	InterfaceKey = "interface"
 	DriverKey    = "driver"
 	SSIDKey      = "ssid"
@@ -101,7 +103,7 @@ func updateConfig(key, value string) error {
 	}
 
 	output := strings.Join(lines, "\n")
-	if err := systemctl.Restart("hostapd"); err != nil {
+	if err := RestartHostapd(); err != nil {
 		log.Errorf("failed to restart hostapd: %s", err)
 		return err
 	}
@@ -112,17 +114,17 @@ func updateConfig(key, value string) error {
 func SetSSIDHidden(hidden bool) error {
 	val := "0"
 	if hidden {
-		val = "1"
+		val = SSIDHidden
 	}
-	return updateConfig("ignore_broadcast_ssid", val)
+	return updateConfig(HideSSIDKey, val)
 }
 
 func SetSSID(name string) error {
-	return updateConfig("ssid", name)
+	return updateConfig(SSIDKey, name)
 }
 
 func SetPassword(password string) error {
-	return updateConfig("wpa_passphrase", password)
+	return updateConfig(PasswordKey, password)
 }
 
 func SetSecurityType(wpa3 bool) error {
@@ -130,13 +132,13 @@ func SetSecurityType(wpa3 bool) error {
 	if wpa3 {
 		val = "3"
 	}
-	return updateConfig("wpa", val)
+	return updateConfig(SecurityKey, val)
 }
 
 func SetChannel(channel int) error {
-	return updateConfig("channel", strconv.Itoa(channel))
+	return updateConfig(ChannelKey, strconv.Itoa(channel))
 }
 
 func RestartHostapd() error {
-	return systemctl.Restart("hostapd")
+	return systemctl.Restart(Service)
 }
