@@ -2,6 +2,7 @@ package management
 
 import (
 	"errors"
+	"ras/management/nmcli"
 
 	"github.com/mackerelio/go-osstat/cpu"
 	"github.com/mackerelio/go-osstat/disk"
@@ -10,14 +11,10 @@ import (
 	"github.com/mackerelio/go-osstat/network"
 )
 
-type MemoryInfo struct {
-	Total uint64
-	Used  uint64
-}
 type OSInfo struct {
 	Memory       *memory.Stats
 	CpuStats     *cpu.Stats
-	NetworkStats []network.Stats
+	NetworkStats []NetworkStats
 	DiskStats    []disk.Stats
 	LoadAverage  *loadavg.Stats
 }
@@ -34,9 +31,30 @@ func GetOSInfo() (OSInfo, error) {
 	}
 	return OSInfo{
 		CpuStats:     cpuS,
-		NetworkStats: net,
+		NetworkStats: toNetworkStatsArr(net),
 		Memory:       mem,
 		DiskStats:    disk,
 		LoadAverage:  load}, nil
+}
 
+type NetworkStats struct {
+	network.Stats
+	MAC string `json:"MAC"`
+}
+
+func toNetworkStatsArr(stats []network.Stats) []NetworkStats {
+	stats2 := make([]NetworkStats, len(stats))
+	for _, s := range stats {
+		stats2 = append(stats2, newNetworkStats(s))
+	}
+	return stats2
+
+}
+
+func newNetworkStats(s network.Stats) NetworkStats {
+	mac, _ := nmcli.GetHardwareAddress(s.Name)
+	return NetworkStats{
+		Stats: s,
+		MAC:   mac,
+	}
 }
