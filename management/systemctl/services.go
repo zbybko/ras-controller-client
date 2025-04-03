@@ -2,10 +2,11 @@ package systemctl
 
 import (
 	"os/exec"
+	"ras/config"
 	"ras/utils"
 	"strings"
 
-	"github.com/charmbracelet/log"
+	l "github.com/charmbracelet/log"
 )
 
 const SystemctlExecutable = "systemctl"
@@ -16,16 +17,30 @@ const (
 	StatusActive = "active"
 )
 
+var log *l.Logger
+
+func init() {
+	log = config.GetLogger("Systemctl module")
+}
+
 func ServiceExists(name string) bool {
 	_, err := utils.Execute(SystemctlExecutable, "status", name)
 	return err != nil
 }
 func Enable(name string) error {
 	_, err := utils.Execute(SystemctlExecutable, "enable", "--now", name)
+	if err != nil {
+		log.Errorf("Failed enable '%s' service: %s", name, err)
+		log.Debugf("See `journalctl -xeu %s`", name)
+	}
 	return err
 }
 func Disable(name string) error {
 	_, err := utils.Execute(SystemctlExecutable, "disable", "--now", name)
+	if err != nil {
+		log.Errorf("Failed disable '%s' service: %s", name, err)
+		log.Debugf("See `journalctl -xeu %s`", name)
+	}
 	return err
 }
 
@@ -41,6 +56,7 @@ func IsActive(name string) bool {
 			}
 		} else {
 			log.Errorf("Failed get status of '%s' service: %s", name, err)
+			log.Debugf("See `journalctl -xeu %s`", name)
 			return false
 
 		}
@@ -50,5 +66,9 @@ func IsActive(name string) bool {
 }
 func Restart(name string) error {
 	_, err := utils.Execute(SystemctlExecutable, "restart", name)
+	if err != nil {
+		log.Errorf("Failed restart '%s' service: %s", name, err)
+		log.Debugf("See `journalctl -xeu %s`", name)
+	}
 	return err
 }
