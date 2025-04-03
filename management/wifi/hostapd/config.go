@@ -22,7 +22,7 @@ const (
 	InterfaceKey = "interface"
 	DriverKey    = "driver"
 	SSIDKey      = "ssid"
-	PasswordKey  = "wps_passphrase"
+	PasswordKey  = "wpa_passphrase"
 	HideSSIDKey  = "ignore_broadcast_ssid"
 	SecurityKey  = "wpa"
 	ChannelKey   = "channel"
