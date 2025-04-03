@@ -2,6 +2,7 @@ package hostapd
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"ras/management/systemctl"
 	"strconv"
@@ -26,6 +27,9 @@ const (
 	HideSSIDKey  = "ignore_broadcast_ssid"
 	SecurityKey  = "wpa"
 	ChannelKey   = "channel"
+
+	MinPasswordLength = 8
+	MaxPasswordLength = 63
 )
 
 func New() (*Config, error) {
@@ -124,6 +128,9 @@ func SetSSID(name string) error {
 }
 
 func SetPassword(password string) error {
+	if len(password) < MinPasswordLength || len(password) > MaxPasswordLength {
+		return fmt.Errorf("invalid passphrase length %d, expected %d..%d", len(password), MinPasswordLength, MaxPasswordLength)
+	}
 	return updateConfig(PasswordKey, password)
 }
 
