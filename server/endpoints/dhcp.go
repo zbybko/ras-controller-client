@@ -33,3 +33,12 @@ func DisableDhcpHandler() gin.HandlerFunc {
 		ctx.JSON(http.StatusOK, gin.H{"enabled": false})
 	}
 }
+func LeasesDhcpHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		leases, err := dhcp.GetLeases()
+		if err == nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		}
+		ctx.JSON(http.StatusOK, leases)
+	}
+}
