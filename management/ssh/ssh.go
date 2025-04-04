@@ -12,10 +12,6 @@ type SshStatus struct {
 
 const SshService = "sshd"
 
-var defaultStatus = SshStatus{
-	Enabled: false,
-}
-
 func Status() SshStatus {
 	sshEnabled := systemctl.IsActive("ssh")
 
