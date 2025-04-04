@@ -80,7 +80,7 @@ func New() *gin.Engine {
 		dhcp.GET("/status", endpoints.DhcpStatusHandler())
 		dhcp.POST("/enable", endpoints.EnableDhcpHandler())
 		dhcp.POST("/disable", endpoints.DisableDhcpHandler())
-		dhcp.POST("/leases", endpoints.LeasesDhcpHandler())
+		dhcp.GET("/leases", endpoints.LeasesDhcpHandler())
 	}
 	api.GET("/journal/:journal", endpoints.JournalsHandler())
 	api.POST("/sim/:sim", endpoints.SimInfoHandler())

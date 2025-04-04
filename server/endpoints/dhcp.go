@@ -36,7 +36,7 @@ func DisableDhcpHandler() gin.HandlerFunc {
 func LeasesDhcpHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		leases, err := dhcp.GetLeases()
-		if err == nil {
+		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		}
 		ctx.JSON(http.StatusOK, leases)
