@@ -21,8 +21,14 @@ type Lease struct {
 	Expires  time.Time `json:"expires"`
 }
 
+type Range struct {
+	StartIP string `json:"start_ip"`
+	EndIP   string `json:"end_ip"`
+}
+
 const DhcpService = "dhcpd.service"
 const LeaseFile = "/var/lib/dhcpd/dhcpd.leases"
+const DhcpConfig = "/etc/dhcp/dhcpd.conf"
 
 func Status() *DhcpStatus {
 	return &DhcpStatus{
@@ -104,4 +110,64 @@ func parseLeaseTime(line string) time.Time {
 		return time.Time{}
 	}
 	return t
+}
+
+func SetDhcpRange(startIP, endIP string) error {
+	data, err := os.ReadFile(DhcpConfig)
+	if err != nil {
+		return err
+	}
+
+	content := string(data)
+
+	lines := strings.Split(content, "\n")
+
+	var updated bool
+	for i, line := range lines {
+		if strings.HasPrefix(line, "range ") {
+			lines[i] = "range " + startIP + " " + endIP + ";"
+			updated = true
+			break
+		}
+	}
+
+	if updated {
+		newContent := strings.Join(lines, "\n")
+		err := os.WriteFile(DhcpConfig, []byte(newContent), 0644)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	return errors.New("DHCP range not found in the configuration file")
+}
+
+func GetDhcpRange() (*Range, error) {
+	data, err := os.ReadFile(DhcpConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	content := string(data)
+
+	lines := strings.Split(content, "\n")
+
+	for _, line := range lines {
+		if strings.HasPrefix(line, "range ") {
+			parts := strings.Fields(line)
+			if len(parts) >= 3 {
+				return &Range{
+					StartIP: parts[1],
+					EndIP:   parts[2],
+				}, nil
+			}
+		}
+	}
+
+	return nil, errors.New("DHCP range not found in the configuration file")
+}
+
+func RestartDhcp() error {
+	return systemctl.Restart(DhcpService)
 }

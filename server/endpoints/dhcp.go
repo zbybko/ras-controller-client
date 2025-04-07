@@ -42,3 +42,51 @@ func LeasesDhcpHandler() gin.HandlerFunc {
 		ctx.JSON(http.StatusOK, leases)
 	}
 }
+func SetDhcpRangeHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req struct {
+			StartIP string `json:"start_ip"`
+			EndIP   string `json:"end_ip"`
+		}
+
+		if err := ctx.ShouldBindJSON(&req); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request. Start IP and End IP are required."})
+			return
+		}
+
+		err := dhcp.SetDhcpRange(req.StartIP, req.EndIP)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		err = dhcp.RestartDhcp()
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to restart DHCP service"})
+			return
+		}
+
+		currentRange, err := dhcp.GetDhcpRange()
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get current DHCP range"})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"current_range": currentRange,
+		})
+	}
+}
+func GetDhcpRangeHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		currentRange, err := dhcp.GetDhcpRange()
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get current DHCP range"})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"current_range": currentRange,
+		})
+	}
+}
