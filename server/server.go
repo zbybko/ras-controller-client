@@ -84,6 +84,12 @@ func New() *gin.Engine {
 	api.GET("/journal/:journal", endpoints.JournalsHandler())
 	api.POST("/sim/:sim", endpoints.SimInfoHandler())
 	api.POST("/reboot", endpoints.RebootHandler())
+	ssh := api.Group("/ssh")
+	{
+		ssh.GET("/status", endpoints.SshStatusHandler())
+		ssh.POST("/enable", endpoints.EnableSshHandler())
+		ssh.POST("/disable", endpoints.DisableSshHandler())
+	}
 	return srv
 }
 
