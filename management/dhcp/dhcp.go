@@ -22,8 +22,12 @@ type Lease struct {
 }
 
 type Range struct {
-	StartIP string `json:"start_ip"`
-	EndIP   string `json:"end_ip"`
+	Subnet            string `json:"subnet"`
+	Netmask           string `json:"netmask"`
+	StartIP           string `json:"start_ip"`
+	EndIP             string `json:"end_ip"`
+	OptionsRouters    string `json:"options_routers"`
+	OptionsBroadcasts string `json:"options_broadcasts"`
 }
 
 const DhcpService = "dhcpd.service"
@@ -112,35 +116,47 @@ func parseLeaseTime(line string) time.Time {
 	return t
 }
 
-func SetDhcpRange(startIP, endIP string) error {
+func SetDhcpRange(subnet, netmask, startIP, endIP, routerIP, broadcastIP string) error {
 	data, err := os.ReadFile(DhcpConfig)
 	if err != nil {
 		return err
 	}
 
-	content := string(data)
+	lines := strings.Split(string(data), "\n")
 
-	lines := strings.Split(content, "\n")
+	var subnetAndNetmaskUpdated, rangeUpdated, routerUpdated, broadcastUpdated bool
 
-	var updated bool
 	for i, line := range lines {
-		if strings.HasPrefix(line, "range ") {
-			lines[i] = "range " + startIP + " " + endIP + ";"
-			updated = true
-			break
+		trimmed := strings.TrimSpace(line)
+
+		switch {
+		case strings.HasPrefix(trimmed, "subnet "):
+			lines[i] = "subnet " + subnet + " netmask " + netmask + "{"
+			subnetAndNetmaskUpdated = true
+
+		case strings.HasPrefix(trimmed, "range "):
+			indent := line[:strings.Index(line, "r")]
+			lines[i] = indent + "range " + startIP + " " + endIP + ";"
+			rangeUpdated = true
+
+		case strings.HasPrefix(trimmed, "option routers "):
+			indent := line[:strings.Index(line, "o")]
+			lines[i] = indent + "option routers " + routerIP + ";"
+			routerUpdated = true
+
+		case strings.HasPrefix(trimmed, "option broadcast-address "):
+			indent := line[:strings.Index(line, "o")]
+			lines[i] = indent + "option broadcast-address " + broadcastIP + ";"
+			broadcastUpdated = true
 		}
 	}
 
-	if updated {
-		newContent := strings.Join(lines, "\n")
-		err := os.WriteFile(DhcpConfig, []byte(newContent), 0644)
-		if err != nil {
-			return err
-		}
-		return nil
+	if !(rangeUpdated && routerUpdated && broadcastUpdated && subnetAndNetmaskUpdated) {
+		return errors.New("one or more DHCP options were not found in the config")
 	}
 
-	return errors.New("DHCP range not found in the configuration file")
+	newContent := strings.Join(lines, "\n")
+	return os.WriteFile(DhcpConfig, []byte(newContent), 0644)
 }
 
 func GetDhcpRange() (*Range, error) {
@@ -149,23 +165,52 @@ func GetDhcpRange() (*Range, error) {
 		return nil, err
 	}
 
+	var startIP, endIP, optionsRouters, optionsBroadcasts, subnet, netmask string
 	content := string(data)
 
 	lines := strings.Split(content, "\n")
 
 	for _, line := range lines {
-		if strings.HasPrefix(line, "range ") {
-			parts := strings.Fields(line)
+		trimmed := strings.TrimSpace(line)
+		switch {
+		case strings.HasPrefix(trimmed, "subnet "):
+			parts := strings.Fields(trimmed)
+			if len(parts) >= 4 {
+				subnet = parts[1]
+				netmask = parts[3]
+			}
+		case strings.HasPrefix(trimmed, "range "):
+			parts := strings.Fields(trimmed)
 			if len(parts) >= 3 {
-				return &Range{
-					StartIP: parts[1],
-					EndIP:   parts[2],
-				}, nil
+				startIP = parts[1]
+				endIP = strings.TrimSuffix(parts[2], ";")
+			}
+		case strings.HasPrefix(trimmed, "option routers "):
+			parts := strings.Fields(trimmed)
+			if len(parts) >= 3 {
+				optionsRouters = strings.TrimSuffix(parts[2], ";")
+			}
+		case strings.HasPrefix(trimmed, "option broadcast-address "):
+			parts := strings.Fields(trimmed)
+			if len(parts) >= 3 {
+				optionsBroadcasts = strings.TrimSuffix(parts[2], ";")
 			}
 		}
 	}
 
-	return nil, errors.New("DHCP range not found in the configuration file")
+	if startIP == "" && endIP == "" {
+		return nil, errors.New("DHCP range not found in the configuration file")
+	}
+
+	return &Range{
+		Subnet:            subnet,
+		Netmask:           netmask,
+		StartIP:           startIP,
+		EndIP:             endIP,
+		OptionsRouters:    optionsRouters,
+		OptionsBroadcasts: optionsBroadcasts,
+	}, nil
+
 }
 
 func RestartDhcp() error {

@@ -45,8 +45,12 @@ func LeasesDhcpHandler() gin.HandlerFunc {
 func SetDhcpRangeHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req struct {
-			StartIP string `json:"start_ip"`
-			EndIP   string `json:"end_ip"`
+			Subnet            string `json:"subnet"`
+			Netmask           string `json:"netmask"`
+			StartIP           string `json:"start_ip"`
+			EndIP             string `json:"end_ip"`
+			OptionsRouters    string `json:"options_routers"`
+			OptionsBroadcasts string `json:"options_broadcasts"`
 		}
 
 		if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -54,7 +58,7 @@ func SetDhcpRangeHandler() gin.HandlerFunc {
 			return
 		}
 
-		err := dhcp.SetDhcpRange(req.StartIP, req.EndIP)
+		err := dhcp.SetDhcpRange(req.Subnet, req.Netmask, req.StartIP, req.EndIP, req.OptionsRouters, req.OptionsBroadcasts)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
