@@ -3,6 +3,7 @@ package main
 import (
 	"ras/config"
 	"ras/management/dhcp"
+	"ras/management/diagnostics"
 	"ras/management/firewall"
 	"ras/management/journals"
 	"ras/management/modems"
@@ -47,7 +48,21 @@ func main() {
 	// FirewallTest()
 	// TestPasswordStorage()
 	// JournalsTest()
-	DhcpTest()
+	// DhcpTest()
+	DiagnosticsTest()
+}
+func DiagnosticsTest() {
+	log.Infof("Ping default addr '%s'", diagnostics.GetDefaultPingAddress())
+	ping, _ := diagnostics.Ping("")
+	log.Info(ping)
+	addr := "google.com"
+	log.Infof("Ping '%s'", addr)
+	ping, _ = diagnostics.Ping(addr)
+	log.Info(ping)
+
+	log.Infof("Nslookup '%s'", addr)
+	ns, _ := diagnostics.Nslookup(addr)
+	log.Info(ns)
 }
 func DhcpTest() {
 	status := dhcp.Status()

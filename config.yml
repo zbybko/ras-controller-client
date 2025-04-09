@@ -29,3 +29,6 @@ chrony:
   pool_as_server: true
 
 mock: true
+
+ping:
+  default_address: ya.ru
