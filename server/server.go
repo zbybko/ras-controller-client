@@ -90,6 +90,12 @@ func New() *gin.Engine {
 		ssh.POST("/enable", endpoints.EnableSshHandler())
 		ssh.POST("/disable", endpoints.DisableSshHandler())
 	}
+	diag := api.Group("/diagnostics")
+	{
+		diag.GET("/default-ping-address", endpoints.DefaultPingAddressHandler())
+		diag.POST("/ping/:address", endpoints.PingHandler())
+		diag.POST("/nslookup/:address", endpoints.NslookupHandler())
+	}
 	return srv
 }
 
