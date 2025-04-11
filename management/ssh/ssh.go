@@ -13,7 +13,7 @@ type SshStatus struct {
 const SshService = "sshd"
 
 func Status() SshStatus {
-	sshEnabled := systemctl.IsActive("ssh")
+	sshEnabled := systemctl.IsActive(SshService)
 
 	return SshStatus{
 		Enabled: sshEnabled,
