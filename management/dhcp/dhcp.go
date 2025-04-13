@@ -21,6 +21,12 @@ type Lease struct {
 	Expires  time.Time `json:"expires"`
 }
 
+type StaticLease struct {
+	Hostname string `json:"hostname"`
+	MAC      string `json:"mac"`
+	IP       string `json:"ip"`
+}
+
 type Range struct {
 	Subnet            string `json:"subnet"`
 	Netmask           string `json:"netmask"`
@@ -211,6 +217,127 @@ func GetDhcpRange() (*Range, error) {
 		OptionsBroadcasts: optionsBroadcasts,
 	}, nil
 
+}
+
+func AddStaticLease(mac, ip, hostname string) error {
+	data, err := os.ReadFile(DhcpConfig)
+	if err != nil {
+		return err
+	}
+
+	lines := strings.Split(string(data), "\n")
+	var leaseAdded bool
+
+	for _, line := range lines {
+		if strings.HasPrefix(strings.TrimSpace(line), "host ") {
+			if strings.Contains(line, mac) {
+				return nil
+			}
+		}
+	}
+
+	staticLease := "\nhost " + hostname + " {\n  hardware ethernet " + mac + ";\n  fixed-address " + ip + ";\n}"
+	lines = append(lines, staticLease)
+	leaseAdded = true
+
+	if leaseAdded {
+		newContent := strings.Join(lines, "\n")
+		err := os.WriteFile(DhcpConfig, []byte(newContent), 0644)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func RemoveStaticLease(mac string) error {
+	data, err := os.ReadFile(DhcpConfig)
+	if err != nil {
+		return err
+	}
+
+	lines := strings.Split(string(data), "\n")
+	var leaseRemoved bool
+
+	for i := 0; i < len(lines); i++ {
+		line := strings.TrimSpace(lines[i])
+
+		if strings.HasPrefix(line, "host ") {
+			blockStart := i
+			blockEnd := -1
+			foundMac := false
+
+			for j := i + 1; j < len(lines); j++ {
+				trimmed := strings.TrimSpace(lines[j])
+
+				if strings.HasPrefix(trimmed, "hardware ethernet") {
+					macInFile := strings.TrimSuffix(strings.TrimPrefix(trimmed, "hardware ethernet "), ";")
+					if strings.EqualFold(macInFile, mac) {
+						foundMac = true
+					}
+				}
+
+				if trimmed == "}" {
+					blockEnd = j
+					break
+				}
+			}
+
+			if foundMac && blockEnd != -1 {
+				lines = append(lines[:blockStart], lines[blockEnd+1:]...)
+				leaseRemoved = true
+				break
+			}
+		}
+	}
+
+	if !leaseRemoved {
+		return errors.New("static lease with the given MAC address not found")
+	}
+
+	newContent := strings.Join(lines, "\n")
+	return os.WriteFile(DhcpConfig, []byte(newContent), 0644)
+}
+
+func GetStaticLeases() ([]StaticLease, error) {
+	data, err := os.ReadFile(DhcpConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	lines := strings.Split(string(data), "\n")
+	var leases []StaticLease
+
+	for i := 0; i < len(lines); i++ {
+		line := strings.TrimSpace(lines[i])
+		if strings.HasPrefix(line, "host ") {
+			var lease StaticLease
+			parts := strings.Fields(line)
+			if len(parts) >= 2 {
+				lease.Hostname = parts[1]
+			}
+
+			lease.Hostname = strings.TrimSuffix(lease.Hostname, "{")
+
+			for j := i + 1; j < len(lines); j++ {
+				trimmed := strings.TrimSpace(lines[j])
+				if strings.HasPrefix(trimmed, "hardware ethernet ") {
+					lease.MAC = strings.TrimSuffix(strings.TrimPrefix(trimmed, "hardware ethernet "), ";")
+				} else if strings.HasPrefix(trimmed, "fixed-address ") {
+					lease.IP = strings.TrimSuffix(strings.TrimPrefix(trimmed, "fixed-address "), ";")
+				} else if trimmed == "}" {
+					break
+				}
+			}
+
+			if lease.MAC != "" && lease.IP != "" {
+				leases = append(leases, lease)
+			}
+		}
+	}
+
+	return leases, nil
 }
 
 func RestartDhcp() error {

@@ -94,3 +94,67 @@ func GetDhcpRangeHandler() gin.HandlerFunc {
 		})
 	}
 }
+func AddStaticLeaseHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var request struct {
+			MAC      string `json:"mac" binding:"required"`
+			IP       string `json:"ip" binding:"required"`
+			Hostname string `json:"hostname" binding:"required"`
+		}
+
+		if err := ctx.ShouldBindJSON(&request); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+			return
+		}
+
+		err := dhcp.AddStaticLease(request.MAC, request.IP, request.Hostname)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		err = dhcp.RestartDhcp()
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to restart DHCP service"})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{"message": "Static lease added successfully"})
+	}
+}
+func RemoveStaticLeaseHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var request struct {
+			MAC string `json:"mac" binding:"required"`
+		}
+
+		if err := ctx.ShouldBindJSON(&request); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+			return
+		}
+
+		err := dhcp.RemoveStaticLease(request.MAC)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		err = dhcp.RestartDhcp()
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to restart DHCP service"})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{"message": "Static lease removed successfully"})
+	}
+}
+func GetStaticLeasesHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		leases, err := dhcp.GetStaticLeases()
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		ctx.JSON(http.StatusOK, leases)
+	}
+}
