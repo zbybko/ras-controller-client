@@ -80,6 +80,15 @@ func New() *gin.Engine {
 		dhcp.GET("/status", endpoints.DhcpStatusHandler())
 		dhcp.POST("/enable", endpoints.EnableDhcpHandler())
 		dhcp.POST("/disable", endpoints.DisableDhcpHandler())
+		dhcp.GET("/leases", endpoints.LeasesDhcpHandler())
+		dhcp.GET("/ranges", endpoints.GetDhcpRangeHandler())
+		dhcp.POST("/ranges", endpoints.SetDhcpRangeHandler())
+		static := dhcp.Group("/static")
+		{
+			static.GET("/list", endpoints.GetStaticLeasesHandler())
+			static.POST("/add", endpoints.AddStaticLeaseHandler())
+			static.POST("/remove", endpoints.RemoveStaticLeaseHandler())
+		}
 	}
 	api.GET("/journal/:journal", endpoints.JournalsHandler())
 	api.POST("/sim/:sim", endpoints.SimInfoHandler())
