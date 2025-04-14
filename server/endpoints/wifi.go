@@ -5,6 +5,7 @@ import (
 	"ras/management/wifi"
 	"ras/management/wifi/hostapd"
 
+	"github.com/charmbracelet/log"
 	"github.com/gin-gonic/gin"
 )
 
@@ -33,6 +34,7 @@ func WiFiStatus() gin.HandlerFunc {
 		status, err := wifi.Status()
 		if err != nil {
 			ctx.AbortWithStatus(http.StatusInternalServerError)
+			log.Errorf("Failed get wi-fi status: %s", err)
 			return
 		}
 		ctx.JSON(http.StatusOK, status)
