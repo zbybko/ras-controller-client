@@ -4,13 +4,13 @@ RAS_FLAGS ?=
 
 EXECUTABLE := ./build/srv
 
-.PHONY: run debug mock
+.PHONY: run debug mock build
 
-build $(EXECUTABLE):
+build:
 	go build -o $(EXECUTABLE) ./cmd/server/main.go
 	chmod 775 $(EXECUTABLE)
 	
-run: $(EXECUTABLE)
+run: build
 	$(RAS_FLAGS) ./build/srv
 
 
@@ -19,4 +19,4 @@ debug: RAS_FLAGS += $(DEBUG_FLAGS)
 test: RAS_FLAGS += $(DEBUG_FLAGS)
 test: RAS_FLAGS += $(MOCK_FLAGS)
 
-test debug: run
+test debug: build run
