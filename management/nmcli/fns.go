@@ -11,5 +11,5 @@ const (
 
 func GetHardwareAddress(deviceName string) (string, error) {
 	output, err := utils.Execute("nmcli", terseFlag, getFields(HardwareAddressField), "device", "show", deviceName)
-	return strings.TrimSpace(string(output)), err
+	return strings.ReplaceAll(strings.TrimSpace(string(output)), `\`, ""), err
 }
