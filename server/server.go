@@ -105,6 +105,10 @@ func New() *gin.Engine {
 		diag.POST("/ping/:address", endpoints.PingHandler())
 		diag.POST("/nslookup/:address", endpoints.NslookupHandler())
 	}
+	ethernet := api.Group("/ethernet")
+	{
+		ethernet.GET("/status", endpoints.GetEthernetPortsHandler())
+	}
 	return srv
 }
 
