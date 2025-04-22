@@ -3,8 +3,10 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"ras/config"
 	"ras/management"
 	"ras/server/endpoints"
+	"ras/server/endpoints/server_management"
 	"ras/server/middleware"
 
 	"github.com/charmbracelet/log"
@@ -14,12 +16,7 @@ import (
 )
 
 func setMode() {
-	mode := viper.GetString("server.mode")
-	if viper.GetBool("debug") {
-		mode = gin.DebugMode
-	}
-	gin.SetMode(mode)
-	log.Debugf("Current gin mode: '%s'", gin.Mode())
+	config.SetupServerMode()
 }
 
 func New() *gin.Engine {
@@ -44,6 +41,7 @@ func New() *gin.Engine {
 		}
 		ctx.JSON(http.StatusOK, info)
 	})
+	api.GET("/device-info", endpoints.DeviceInfoHandler())
 	api.GET("/timezone", endpoints.TimezoneHandler())
 	api.POST("/timezone/set", endpoints.SetTimezoneHandler())
 	api.GET("/ntp", endpoints.NtpInfo())
@@ -108,6 +106,12 @@ func New() *gin.Engine {
 	ethernet := api.Group("/ethernet")
 	{
 		ethernet.GET("/status", endpoints.GetEthernetPortsHandler())
+	}
+	ras := api.Group("/ras")
+	{
+		server := ras.Group("/server")
+		server.POST("/mode/:mode", server_management.SetModeHandler())
+		server.GET("/mode", server_management.GetModeHandler())
 	}
 	return srv
 }
