@@ -44,6 +44,7 @@ func New() *gin.Engine {
 		}
 		ctx.JSON(http.StatusOK, info)
 	})
+	api.GET("/device-info", endpoints.DeviceInfoHandler())
 	api.GET("/timezone", endpoints.TimezoneHandler())
 	api.POST("/timezone/set", endpoints.SetTimezoneHandler())
 	api.GET("/ntp", endpoints.NtpInfo())

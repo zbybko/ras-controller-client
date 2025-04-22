@@ -32,3 +32,9 @@ mock: true
 
 ping:
   default_address: ya.ru
+
+device:
+  manufacturer: "Zarinit"
+  model: "Router"
+  model-version: "001"
+  firmware-version: "0.0.1"
