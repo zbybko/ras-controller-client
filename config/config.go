@@ -34,3 +34,10 @@ func LoadConfigFile() {
 		}
 	}
 }
+func Save() {
+	err := viper.WriteConfig()
+	if err != nil {
+		log.Errorf("Failed to save config file: %s", err)
+	}
+	log.Debug("Saved config file")
+}
