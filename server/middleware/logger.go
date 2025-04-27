@@ -22,6 +22,7 @@ func Logger() gin.HandlerFunc {
 	}
 
 	return func(c *gin.Context) {
+		c.Next()
 		level := DefaultRequestLevel
 		switch c.Writer.Status() {
 		case http.StatusOK:
@@ -32,6 +33,5 @@ func Logger() gin.HandlerFunc {
 			"method", c.Request.Method,
 			"url", c.Request.URL.Path,
 			"status", c.Writer.Status())
-		c.Next()
 	}
 }

@@ -3,7 +3,9 @@ auth:
 chrony:
     pool_as_server: true
 client:
-    address: http://localhost:5173
+    addresses:
+    - "http://localhost:5173"
+    - "http://10.81.14.205:5173"
 config: config
 device:
     firmware-version: 0.0.1

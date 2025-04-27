@@ -26,7 +26,7 @@ func New() *gin.Engine {
 
 	srv.Use(middleware.Logger())
 	srv.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{viper.GetString("client.address")},
+		AllowOrigins:     viper.GetStringSlice("client.addresses"),
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,
