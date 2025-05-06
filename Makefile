@@ -4,9 +4,12 @@ RAS_FLAGS ?=
 
 EXECUTABLE := ./build/srv
 
-.PHONY: run debug mock build
+.PHONY: run debug mock build prepare
 
-build:
+prepare:
+	git pull --rebase
+
+build: prepare 
 	go build -o $(EXECUTABLE) ./cmd/server/main.go
 	chmod 775 $(EXECUTABLE)
 	
