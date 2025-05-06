@@ -9,7 +9,7 @@ import (
 
 func GetEthernetPortsHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		ports, err := ethernet.GetEthernetPorts()
+		ports, err := ethernet.GetPorts()
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
