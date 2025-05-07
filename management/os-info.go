@@ -52,8 +52,11 @@ func GetOSInfo() (OSInfo, error) {
 }
 
 func toNetworkStatsArr(stats []network.Stats) []NetworkStats {
-	stats2 := make([]NetworkStats, len(stats))
+	stats2 := []NetworkStats{}
 	for _, s := range stats {
+		if s.Name == "" {
+			continue
+		}
 		stats2 = append(stats2, newNetworkStats(s))
 	}
 	return stats2
