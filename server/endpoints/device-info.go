@@ -12,10 +12,10 @@ func DeviceInfoHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Debug("Getting device info")
 		c.JSON(http.StatusOK, gin.H{
-			"manufacturer":     viper.GetString("device.manufacturer"),
-			"model":            viper.GetString("device.model"),
-			"model-version":    viper.GetString("device.model-version"),
-			"firmware-version": viper.GetString("device.firmware-version"),
+			"manufacturer":    viper.GetString("device.manufacturer"),
+			"model":           viper.GetString("device.model"),
+			"modelVersion":    viper.GetString("device.model-version"),
+			"firmwareVersion": viper.GetString("device.firmware-version"),
 		})
 	}
 }
