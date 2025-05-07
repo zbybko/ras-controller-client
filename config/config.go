@@ -22,6 +22,10 @@ func init() {
 	configName := viper.GetString("config")
 	viper.SetConfigName(configName)
 	viper.AddConfigPath(".")
+	viper.AddConfigPath("$HOME/.config/ras")
+	viper.AddConfigPath("$HOME")
+	viper.AddConfigPath("/etc/ras")
+	viper.AddConfigPath("/etc")
 }
 
 func LoadConfigFile() {
