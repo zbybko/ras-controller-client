@@ -5,9 +5,11 @@ import (
 	"net/http"
 	"ras/management/time"
 	"ras/management/time/chrony"
+	"slices"
 
 	"github.com/charmbracelet/log"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 )
 
 func TimezoneHandler() gin.HandlerFunc {
@@ -83,6 +85,16 @@ func AddNtpServerHandler() gin.HandlerFunc {
 		}
 		server := chrony.NewNtpServer(r.Address)
 		server.ChronyParameter.Options = r.Options
+
+		// Adding default options
+		defaultOptions := viper.GetStringSlice("ntp.default_options")
+		for _, opt := range defaultOptions {
+			if slices.Contains(server.ChronyParameter.Options, opt) {
+				continue
+			}
+			server.ChronyParameter.Options = append(server.ChronyParameter.Options, opt)
+		}
+
 		err := time.AddNtpServer(server)
 		if err != nil {
 			log.Errorf("Error while adding NTP server: %s", err)
