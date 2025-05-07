@@ -87,13 +87,15 @@ func AddNtpServerHandler() gin.HandlerFunc {
 		server.ChronyParameter.Options = r.Options
 
 		// Adding default options
-		defaultOptions := viper.GetStringSlice("ntp.default_options")
+		defaultOptions := viper.GetStringSlice("chrony.default_options")
+		log.Debugf("Adding default ntp server options: %v", defaultOptions)
 		for _, opt := range defaultOptions {
 			if slices.Contains(server.ChronyParameter.Options, opt) {
 				continue
 			}
 			server.ChronyParameter.Options = append(server.ChronyParameter.Options, opt)
 		}
+		log.Debugf("Final ntp server: %v", server)
 
 		err := time.AddNtpServer(server)
 		if err != nil {
