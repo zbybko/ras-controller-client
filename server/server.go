@@ -103,6 +103,7 @@ func New() *gin.Engine {
 		diag.GET("/default-ping-address", endpoints.DefaultPingAddressHandler())
 		diag.POST("/ping/:address", endpoints.PingHandler())
 		diag.POST("/nslookup/:address", endpoints.NslookupHandler())
+		diag.POST("/traceroute/:address", endpoints.TracerouteHandler())
 	}
 	ethernet := api.Group("/ethernet")
 	{

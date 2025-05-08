@@ -1,6 +1,7 @@
 package endpoints
 
 import (
+	"errors"
 	"net/http"
 	"ras/management/diagnostics"
 
@@ -37,5 +38,24 @@ func DefaultPingAddressHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		defaultAddress := diagnostics.GetDefaultPingAddress()
 		ctx.JSON(http.StatusOK, gin.H{"defaultAddress": defaultAddress})
+	}
+}
+
+func TracerouteHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		addr := ctx.Param("address")
+		output, err := diagnostics.Traceroute(addr)
+		if err != nil && errors.Is(err, diagnostics.ErrEmptyAddress) {
+			log.Errorf("No address specified for traceroute %s", err)
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		} else if err != nil {
+			log.Errorf("Failed traceroute: %s", err)
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{"output": output})
 	}
 }
