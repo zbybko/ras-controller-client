@@ -67,3 +67,13 @@ func GetPassword() string {
 	}
 	return value
 }
+func SetPassword(password string) error {
+	db := mustGetDB()
+	defer db.Close()
+	txn := db.NewTransaction(true)
+	err := txn.Set([]byte("passwordHash"), []byte(hashPassword(password)))
+	if err != nil {
+		return err
+	}
+	return txn.Commit()
+}
