@@ -33,6 +33,38 @@ func Authorization() gin.HandlerFunc {
 			return
 		}
 
-		ctx.JSON(http.StatusOK, gin.H{"token": token})
+		ctx.JSON(http.StatusOK, gin.H{"token": token, "success": true})
+	}
+}
+func ChangePassword() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var request struct {
+			OldPassword string `json:"oldPassword"`
+			NewPassword string `json:"newPassword"`
+		}
+
+		if err := ctx.ShouldBindJSON(&request); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+			return
+		}
+
+		storedPasswordHash := storage.GetPassword()
+
+		if err := bcrypt.CompareHashAndPassword([]byte(storedPasswordHash), []byte(request.OldPassword)); err != nil {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid password"})
+			return
+		}
+
+		newPasswordHash, err := bcrypt.GenerateFromPassword([]byte(request.NewPassword), bcrypt.DefaultCost)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate password hash"})
+			return
+		}
+
+		storage.SetPassword(string(newPasswordHash))
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"success": true,
+		})
 	}
 }

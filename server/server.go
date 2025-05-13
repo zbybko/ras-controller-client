@@ -73,7 +73,11 @@ func New() *gin.Engine {
 		wifi.POST("/security/set", endpoints.SetSecurityType)
 		wifi.POST("/channel/set", endpoints.SetChannel)
 	}
-	api.POST("/auth/", endpoints.Authorization())
+	auth := api.Group("/auth")
+	{
+		auth.POST("/signin", endpoints.Authorization())
+		auth.POST("/change-password", endpoints.ChangePassword())
+	}
 	modems := api.Group("/modems")
 	{
 		modems.GET("/list", endpoints.ModemsListHandler())
