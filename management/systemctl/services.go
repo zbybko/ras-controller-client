@@ -24,8 +24,8 @@ func init() {
 }
 
 func ServiceExists(name string) bool {
-	_, err := utils.Execute(SystemctlExecutable, "status", name)
-	return err != nil
+	_, err := utils.Execute(SystemctlExecutable, "list-unit-files", name)
+	return err == nil
 }
 func Enable(name string) error {
 	_, err := utils.Execute(SystemctlExecutable, "enable", "--now", name)

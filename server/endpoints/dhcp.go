@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"ras/management/dhcp"
 
+	"github.com/charmbracelet/log"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,6 +18,7 @@ func EnableDhcpHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		err := dhcp.Enable()
 		if err != nil {
+			log.Errorf("Failed to enable DHCP: %s", err)
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err})
 			return
 		}
@@ -156,5 +158,10 @@ func GetStaticLeasesHandler() gin.HandlerFunc {
 			return
 		}
 		ctx.JSON(http.StatusOK, leases)
+	}
+}
+func CanManageDhcpHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, gin.H{"canManage": dhcp.CanManage()})
 	}
 }

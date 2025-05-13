@@ -33,6 +33,13 @@ func New() *gin.Engine {
 	}))
 
 	api := srv.Group("/api")
+	if gin.IsDebugging() {
+		api.GET("/ping", func(ctx *gin.Context) {
+			ctx.JSON(http.StatusOK, gin.H{
+				"status": gin.IsDebugging(),
+			})
+		})
+	}
 	api.GET("/os-info", func(ctx *gin.Context) {
 		info, err := management.GetOSInfo()
 		if err != nil {
@@ -76,12 +83,14 @@ func New() *gin.Engine {
 	}
 	dhcp := api.Group("/dhcp")
 	{
+		dhcp.GET("/can-manage", endpoints.CanManageDhcpHandler())
 		dhcp.GET("/status", endpoints.DhcpStatusHandler())
 		dhcp.POST("/enable", endpoints.EnableDhcpHandler())
 		dhcp.POST("/disable", endpoints.DisableDhcpHandler())
 		dhcp.GET("/leases", endpoints.LeasesDhcpHandler())
 		dhcp.GET("/ranges", endpoints.GetDhcpRangeHandler())
 		dhcp.POST("/ranges", endpoints.SetDhcpRangeHandler())
+
 		static := dhcp.Group("/static")
 		{
 			static.GET("/list", endpoints.GetStaticLeasesHandler())

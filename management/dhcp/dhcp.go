@@ -8,6 +8,8 @@ import (
 	"ras/utils"
 	"strings"
 	"time"
+
+	"github.com/charmbracelet/log"
 )
 
 type DhcpStatus struct {
@@ -36,13 +38,34 @@ type Range struct {
 	OptionsBroadcasts string `json:"options_broadcasts"`
 }
 
-const DhcpService = "dhcpd.service"
+const DhcpService = "dhcpd.service"   // Default service for RED OS 8
+const Dhcp4Service = "dhcpd4.service" // Default service for Arch Linux
 const LeaseFile = "/var/lib/dhcpd/dhcpd.leases"
 const DhcpConfig = "/etc/dhcp/dhcpd.conf"
 
+var ErrNoDhcpService = errors.New("no dhcp service found")
+
+func getCurrentService() (string, error) {
+	if systemctl.ServiceExists(DhcpService) {
+		log.Debug("DHCP service found", "service", DhcpService)
+		return DhcpService, nil
+	}
+	if systemctl.ServiceExists(Dhcp4Service) {
+		log.Debug("DHCP service found", "service", Dhcp4Service)
+		return Dhcp4Service, nil
+	}
+	log.Warn("No DHCP service found")
+	return "", ErrNoDhcpService
+}
+
 func Status() *DhcpStatus {
+	service, err := getCurrentService()
+	if err != nil {
+		log.Errorf("Failed get dhcp service: %s", err)
+		return nil
+	}
 	return &DhcpStatus{
-		Enabled: systemctl.IsActive(DhcpService),
+		Enabled: systemctl.IsActive(service),
 	}
 }
 
@@ -50,8 +73,12 @@ func Enable() error {
 	if err := utils.CheckRoot(); err != nil {
 		return err
 	}
+	service, err := getCurrentService()
+	if err != nil {
+		return err
+	}
 	return errors.Join(
-		systemctl.Enable(DhcpService),
+		systemctl.Enable(service),
 		utils.ExecuteErr("firewall-cmd", "--permanent", "--add-service=dhcp"),
 		utils.ExecuteErr("firewall-cmd", "--reload"),
 	)
@@ -61,7 +88,18 @@ func Disable() error {
 	if err := utils.CheckRoot(); err != nil {
 		return err
 	}
-	return systemctl.Disable(DhcpService)
+	service, err := getCurrentService()
+	if err != nil {
+		return err
+	}
+	return systemctl.Disable(service)
+}
+
+func CanManage() bool {
+	if _, err := getCurrentService(); errors.Is(err, ErrNoDhcpService) {
+		return false
+	}
+	return true
 }
 
 func GetLeases() ([]Lease, error) {
@@ -341,5 +379,9 @@ func GetStaticLeases() ([]StaticLease, error) {
 }
 
 func RestartDhcp() error {
-	return systemctl.Restart(DhcpService)
+	service, err := getCurrentService()
+	if err != nil {
+		return err
+	}
+	return systemctl.Restart(service)
 }
