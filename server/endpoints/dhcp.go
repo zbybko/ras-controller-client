@@ -1,6 +1,7 @@
 package endpoints
 
 import (
+	"fmt"
 	"net/http"
 	"ras/management/dhcp"
 
@@ -66,7 +67,7 @@ func SetDhcpRangeHandler() gin.HandlerFunc {
 			return
 		}
 
-		err = dhcp.RestartDhcp()
+		err = dhcp.Restart()
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to restart DHCP service"})
 			return
@@ -99,29 +100,30 @@ func GetDhcpRangeHandler() gin.HandlerFunc {
 func AddStaticLeaseHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var request struct {
-			MAC      string `json:"mac" binding:"required"`
-			IP       string `json:"ip" binding:"required"`
+			MAC      string `json:"mac" binding:"required,mac"`
+			IP       string `json:"ip" binding:"required,ip"`
 			Hostname string `json:"hostname" binding:"required"`
 		}
 
 		if err := ctx.ShouldBindJSON(&request); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+			log.Errorf("Failed bind JSON data: %s", err)
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid request data: %s", err)})
 			return
 		}
 
-		err := dhcp.AddStaticLease(request.MAC, request.IP, request.Hostname)
-		if err != nil {
+		if err := dhcp.AddStaticLease(request.MAC, request.IP, request.Hostname); err != nil {
+			log.Errorf("Failed add static lease: %s", err)
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
-		err = dhcp.RestartDhcp()
-		if err != nil {
+		if err := dhcp.Restart(); err != nil {
+			log.Errorf("Failed to restart DHCP service: %s", err)
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to restart DHCP service"})
 			return
 		}
 
-		ctx.JSON(http.StatusOK, gin.H{"message": "Static lease added successfully"})
+		ctx.JSON(http.StatusOK, gin.H{"message": "Static lease added successfully", "success": true})
 	}
 }
 func RemoveStaticLeaseHandler() gin.HandlerFunc {
@@ -141,7 +143,7 @@ func RemoveStaticLeaseHandler() gin.HandlerFunc {
 			return
 		}
 
-		err = dhcp.RestartDhcp()
+		err = dhcp.Restart()
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to restart DHCP service"})
 			return

@@ -391,7 +391,7 @@ func GetStaticLeases() ([]StaticLease, error) {
 	return leases, nil
 }
 
-func RestartDhcp() error {
+func Restart() error {
 	service, err := getCurrentService()
 	if err != nil {
 		return err
