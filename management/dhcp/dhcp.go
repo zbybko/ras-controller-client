@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"os"
+	"ras/management/firewall"
 	"ras/management/systemctl"
 	"ras/utils"
 	"strings"
@@ -77,11 +78,23 @@ func Enable() error {
 	if err != nil {
 		return err
 	}
-	return errors.Join(
-		systemctl.Enable(service),
-		utils.ExecuteErr("firewall-cmd", "--permanent", "--add-service=dhcp"),
-		utils.ExecuteErr("firewall-cmd", "--reload"),
-	)
+	err = systemctl.Enable(service)
+	if err != nil {
+		log.Errorf("Failed enable dhcp service: %s", err)
+		return err
+	}
+
+	err = firewall.AddService("dhcp")
+
+	if err != nil {
+		if errors.Is(err, firewall.ErrServiceNotActive) {
+			log.Warnf("Firewall service is not active, probably disabled, so the error is ignored")
+			return nil
+		}
+		log.Errorf("Failed add dhcp service to firewall: %s", err)
+		return err
+	}
+	return nil
 }
 
 func Disable() error {

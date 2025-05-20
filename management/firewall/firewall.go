@@ -3,41 +3,75 @@ package firewall
 import (
 	"fmt"
 	"ras/management/systemctl"
+	"ras/utils"
+
+	"github.com/charmbracelet/log"
 )
 
-var NoServiceErr = fmt.Errorf("there is not firewall service in system")
+const FirewallService = "firewalld.service"
+
+var (
+	ErrNoService        = fmt.Errorf("there is not firewall service in system")
+	ErrServiceNotActive = fmt.Errorf("firewall service is not active (maybe disabled)")
+)
 
 func Enable() error {
 	if !ServiceExists() {
-		return NoServiceErr
+		return ErrNoService
 	}
 	return systemctl.Enable(FirewallService)
 }
 
 func Disable() error {
 	if !ServiceExists() {
-		return NoServiceErr
+		return ErrNoService
 	}
 	return systemctl.Disable(FirewallService)
 }
 
 type FirewallInfo struct {
-	Active bool `json:"active"`
+	Active        bool `json:"active"`
+	ServiceExists bool `json:"serviceExists"`
 }
 
 func ServiceExists() bool {
 	return systemctl.ServiceExists(FirewallService)
 }
 
+func IsActive() bool {
+	return systemctl.IsActive(FirewallService)
+}
+
 func Status() (*FirewallInfo, error) {
 	if !ServiceExists() {
-		return nil, NoServiceErr
+		return &FirewallInfo{}, ErrNoService
 	}
-	isActive := systemctl.IsActive(FirewallService)
 
 	return &FirewallInfo{
-		Active: isActive,
+		ServiceExists: ServiceExists(),
+		Active:        IsActive(),
 	}, nil
 }
 
-const FirewallService = "firewalld.service"
+func AddService(serviceName string) error {
+	if !IsActive() {
+		return ErrServiceNotActive
+	}
+	if err := utils.ExecuteErr("firewall-cmd", "--permanent", fmt.Sprintf("--add-service=%s", serviceName)); err != nil {
+		log.Errorf("Failed to add service '%s' : %s", serviceName, err)
+		return err
+	}
+
+	return Restart()
+}
+
+func Restart() error {
+	if !ServiceExists() {
+		return ErrNoService
+	}
+
+	if !IsActive() {
+		return ErrServiceNotActive
+	}
+	return systemctl.Restart(FirewallService)
+}
