@@ -62,7 +62,14 @@ func AddService(serviceName string) error {
 		return err
 	}
 
-	return Restart()
+	return Reload()
+}
+
+func Reload() error {
+	if !IsActive() {
+		return ErrServiceNotActive
+	}
+	return utils.ExecuteErr("firewall-cmd", "--reload")
 }
 
 func Restart() error {
