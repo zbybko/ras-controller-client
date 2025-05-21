@@ -1,7 +1,6 @@
 package time
 
 import (
-	"fmt"
 	"ras/utils"
 
 	"github.com/charmbracelet/log"
@@ -21,10 +20,6 @@ func SetTimeZone(timezone string) error {
 		log.Warn("Operation is not allowed for non-root users")
 		return err
 	}
-	_, err := utils.Execute("timedatectl", "set-timezone", inQuotes(timezone))
+	_, err := utils.Execute("timedatectl", "set-timezone", timezone)
 	return err
-}
-
-func inQuotes(value string) string {
-	return fmt.Sprintf("'%s'", value)
 }

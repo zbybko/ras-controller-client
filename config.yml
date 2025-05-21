@@ -33,3 +33,5 @@ storage:
 system:
     default-password: admin
 use_mock: false
+wifi:
+    default_interface: wlan0

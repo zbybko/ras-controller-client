@@ -6,7 +6,7 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-const ConnectionName = "HostspotZarinit"
+const ConnectionName = "AccessPointZarinit"
 
 type Info struct {
 	Channel  int    `json:"channel"`

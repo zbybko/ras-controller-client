@@ -4,6 +4,7 @@ import (
 	"ras/management/nmcli"
 
 	"github.com/charmbracelet/log"
+	"github.com/spf13/viper"
 )
 
 func getConnection() (*nmcli.WirelessConnection, error) {
@@ -31,10 +32,7 @@ func connectionExists() (bool, *nmcli.WirelessConnection) {
 	return false, nil
 }
 func createConnection() (*nmcli.WirelessConnection, error) {
-	const interfaceName = "wlan0" // TODO: fix default interface/device
-
-	log.Warnf("Creating new connection with default interface %s, this should be fixed ASAP", interfaceName)
-	log.Warnf("Immediately call function author Katy248 to fix this")
+	interfaceName := viper.GetString("wifi.default_interface")
 
 	conn, err := nmcli.CreateWirelessConnection(interfaceName, ConnectionName)
 	conn.SetMode(nmcli.WirelessModeAccessPoint)

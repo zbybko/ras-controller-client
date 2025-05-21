@@ -49,10 +49,6 @@ func execute(wrapInQuotes bool, command string, args ...string) ([]byte, error) 
 
 }
 
-func ExecuteWrap(command string, args ...string) ([]byte, error) {
-	return execute(true, command, args...)
-}
-
 func Execute(command string, args ...string) ([]byte, error) {
 	return execute(false, command, args...)
 }
