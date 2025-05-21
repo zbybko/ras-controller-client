@@ -3,6 +3,7 @@ package nmcli
 import (
 	"fmt"
 	"ras/utils"
+	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/log"
@@ -14,6 +15,9 @@ type Connection struct {
 	Type    ConnectionType
 	Device  string
 	options map[string]string
+}
+type WirelessConnection struct {
+	*Connection
 }
 
 type ConnectionType string
@@ -66,17 +70,82 @@ func parseConn(line string) (Connection, error) {
 
 }
 
-func CreateConnection(
+func createConnection(
 	t ConnectionType,
-	interfaceName string,
-	connectionName string) (*Connection, error) {
-	return nil, nil
+	deviceName string,
+	connectionName string, additionalCliParams []string) (*Connection, error) {
+
+	params := []string{"connection", "add", "type", string(t), "ifname", deviceName, "con-name", connectionName}
+	params = append(params, additionalCliParams...)
+	err := utils.ExecuteErr("nmcli", params...)
+	if err != nil {
+		return nil, err
+	}
+	return &Connection{
+		Name:   connectionName,
+		Type:   t,
+		Device: deviceName,
+	}, nil
+}
+
+func CreateWirelessConnection(
+	deviceName string,
+	connectionName string) (*WirelessConnection, error) {
+
+	conn, err := createConnection(
+		ConnectionTypeWIFI, deviceName, connectionName,
+		[]string{"autoconnect", "yes", "ssid", connectionName},
+	)
+	if err != nil {
+		return nil, err
+	}
+	wireless := WirelessConnection{conn}
+	wireless.setOption(OptionKeyWirelessKeyMgmt, "wpa-psk")
+
+	return &wireless, nil
 }
 
 const (
-	OptionKeyWirelessSSID   = "802-11-wireless.ssid"
-	OptionKeyWirelessHidden = "802-11-wireless.hidden"
+	OptionKeyIP4Method = "ipv4.method"
 )
+const (
+	OptionKeyWirelessSSID     = "802-11-wireless.ssid"
+	OptionKeyWirelessHidden   = "802-11-wireless.hidden"
+	OptionKeyWirelessChanel   = "802-11-wireless.chanel"
+	OptionKeyWirelessPassword = "wifi-sec.psk"
+	OptionKeyWirelessMode     = "802-11-wireless.mode"
+	OptionKeyWirelessKeyMgmt  = "wifi-sec.key-mgmt" //Probably security mode
+)
+
+type WirelessMode string
+
+const (
+	WirelessModeAccessPoint WirelessMode = "ap"
+)
+
+func (c *WirelessConnection) SetMode(mode WirelessMode) error {
+	return c.setOption(OptionKeyWirelessMode, string(mode))
+}
+
+type WirelessBand = string
+
+const (
+	WirelessBandDefault WirelessBand = "bg"
+)
+
+func (c *WirelessConnection) SetBand(band WirelessBand) error {
+	return c.setOption(OptionKeyWirelessMode, string(band))
+}
+
+type IP4Method = string
+
+const (
+	ConnectionIP4MethodShared IP4Method = "shared"
+)
+
+func (c *Connection) SetIP4Method(method IP4Method) error {
+	return c.setOption(OptionKeyIP4Method, string(method))
+}
 
 func (c *Connection) Up() error {
 	return utils.ExecuteErr("nmcli", "connection", "up", c.Name)
@@ -84,18 +153,32 @@ func (c *Connection) Up() error {
 func (c *Connection) Down() error {
 	return utils.ExecuteErr("nmcli", "connection", "up", c.Name)
 }
-func (c *Connection) GetSSID() string {
-	if c.ensureOptionsParsed() != nil {
-		return ""
-	}
-	return c.options[OptionKeyWirelessSSID]
+func (c *WirelessConnection) GetSSID() string {
+	return c.getOption(OptionKeyWirelessSSID)
 }
-func (c *Connection) SetSSID(ssid string) error {
+func (c *WirelessConnection) SetSSID(ssid string) error {
 	err := c.setOption(OptionKeyWirelessSSID, ssid)
 	if err == nil {
 		c.ensureOptionsParsed()
 	}
 	return err
+}
+func (c *WirelessConnection) GetChanel() int {
+	opt := c.getOption(OptionKeyWirelessChanel)
+	value, err := strconv.Atoi(opt)
+	if err != nil {
+		return 0
+	}
+	return value
+}
+func (c *WirelessConnection) SetChannel(chanel int) error {
+	return c.setOption(OptionKeyWirelessChanel, strconv.Itoa(chanel))
+}
+func (c *WirelessConnection) GetPassword() string {
+	return c.getOption(OptionKeyWirelessPassword)
+}
+func (c *WirelessConnection) SetPassword(password string) error {
+	return c.setOption(OptionKeyWirelessPassword, password)
 }
 
 const (
@@ -103,11 +186,10 @@ const (
 	WirelessNotHiddenValue = "yes"
 )
 
-func (c *Connection) IsHidden() bool {
-	c.ensureOptionsParsed()
-	return c.options[OptionKeyWirelessHidden] == WirelessHiddenValue
+func (c *WirelessConnection) IsHidden() bool {
+	return c.getOption(OptionKeyWirelessHidden) == WirelessHiddenValue
 }
-func (c *Connection) SetHidden(hide bool) error {
+func (c *WirelessConnection) SetHidden(hide bool) error {
 	var value string
 	if hide {
 		value = WirelessHiddenValue
@@ -119,6 +201,11 @@ func (c *Connection) SetHidden(hide bool) error {
 		c.ensureOptionsParsed()
 	}
 	return err
+}
+
+func (c *Connection) getOption(optionName string) string {
+	c.ensureOptionsParsed()
+	return c.options[optionName]
 }
 
 func (c *Connection) ensureOptionsParsed() error {
