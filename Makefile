@@ -4,12 +4,9 @@ RAS_FLAGS ?=
 
 EXECUTABLE := ./build/srv
 
-.PHONY: run debug mock build prepare install enable-service disable-service update-service test
+.PHONY: run debug mock build install enable-service disable-service update-service test
 
-prepare:
-	# git pull --rebase
-
-build: prepare 
+build: 
 	go build -o $(EXECUTABLE) ./cmd/server/main.go
 	chmod 775 $(EXECUTABLE)
 	
@@ -37,7 +34,6 @@ install: build
 	chmod 775 /etc/ras/config.yml
 
 enable-service: install
-	iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
 	systemctl enable --now $(SERVICE_NAME) || journalctl -xeu $(SERVICE_NAME)
 
 disable-service:
