@@ -31,7 +31,7 @@ func Enable(name string) error {
 	_, err := utils.Execute(SystemctlExecutable, "enable", "--now", name)
 	if err != nil {
 		log.Errorf("Failed enable '%s' service: %s", name, err)
-		log.Debugf("See `journalctl -xeu %s`", name)
+		printErrorDebugInfo(name)
 	}
 	return err
 }
@@ -39,7 +39,7 @@ func Disable(name string) error {
 	_, err := utils.Execute(SystemctlExecutable, "disable", "--now", name)
 	if err != nil {
 		log.Errorf("Failed disable '%s' service: %s", name, err)
-		log.Debugf("See `journalctl -xeu %s`", name)
+		printErrorDebugInfo(name)
 	}
 	return err
 }
@@ -56,10 +56,10 @@ func IsActive(name string) bool {
 			}
 		} else {
 			log.Errorf("Failed get status of '%s' service: %s", name, err)
-			log.Debugf("See `journalctl -xeu %s`", name)
 			return false
 
 		}
+		printErrorDebugInfo(name)
 	}
 	strOutput := strings.TrimSpace(string(output))
 	return strOutput == StatusActive
@@ -68,7 +68,10 @@ func Restart(name string) error {
 	_, err := utils.Execute(SystemctlExecutable, "restart", name)
 	if err != nil {
 		log.Errorf("Failed restart '%s' service: %s", name, err)
-		log.Debugf("See `journalctl -xeu %s`", name)
+		printErrorDebugInfo(name)
 	}
 	return err
+}
+func printErrorDebugInfo(serviceName string) {
+	log.Debugf("See `journalctl -xeu %s`", serviceName)
 }
