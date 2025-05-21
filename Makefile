@@ -37,6 +37,7 @@ install: build
 	chmod 775 /etc/ras/config.yml
 
 enable-service: install
+	iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
 	systemctl enable --now $(SERVICE_NAME) || journalctl -xeu $(SERVICE_NAME)
 
 disable-service:
