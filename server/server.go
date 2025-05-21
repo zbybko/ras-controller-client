@@ -70,7 +70,7 @@ func New() *gin.Engine {
 		wifi.POST("/ssid/hide", endpoints.SetSSIDHidden)
 		wifi.POST("/ssid/set", endpoints.SetSSID)
 		wifi.POST("/password/set", endpoints.SetPassword)
-		wifi.POST("/security/set", endpoints.SetSecurityType)
+		// wifi.POST("/security/set", endpoints.SetSecurityType)
 		wifi.POST("/channel/set", endpoints.SetChannel)
 	}
 	auth := api.Group("/auth")

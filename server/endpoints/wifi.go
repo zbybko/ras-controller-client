@@ -2,15 +2,14 @@ package endpoints
 
 import (
 	"net/http"
-	"ras/management/wifi"
-	"ras/management/wifi/hostapd"
+	"ras/management/ap"
 
 	"github.com/gin-gonic/gin"
 )
 
 // Включить Wi-Fi
 func EnableWiFi(c *gin.Context) {
-	if err := wifi.Enable(); err != nil {
+	if err := ap.Enable(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -20,7 +19,7 @@ func EnableWiFi(c *gin.Context) {
 
 // Выключить Wi-Fi
 func DisableWiFi(c *gin.Context) {
-	if err := wifi.Disable(); err != nil {
+	if err := ap.Disable(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -45,7 +44,7 @@ func SetSSIDHidden(c *gin.Context) {
 		return
 	}
 
-	if err := hostapd.SetSSIDHidden(req.Hidden); err != nil {
+	if err := ap.SetHidden(req.Hidden); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -64,7 +63,7 @@ func SetSSID(c *gin.Context) {
 		return
 	}
 
-	if err := hostapd.SetSSID(req.SSID); err != nil {
+	if err := ap.SetSSID(req.SSID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -83,7 +82,7 @@ func SetPassword(c *gin.Context) {
 		return
 	}
 
-	if err := hostapd.SetPassword(req.Password); err != nil {
+	if err := ap.SetPassword(req.Password); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -92,31 +91,31 @@ func SetPassword(c *gin.Context) {
 }
 
 // Изменить тип шифрования (WPA2/WPA3)
-func SetSecurityType(c *gin.Context) {
-	var req struct {
-		WPA3 bool `json:"wpa3"`
-	}
+// func SetSecurityType(c *gin.Context) {
+// 	var req struct {
+// 		WPA3 bool `json:"wpa3"`
+// 	}
 
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
+// 	if err := c.ShouldBindJSON(&req); err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+// 		return
+// 	}
 
-	var securityType hostapd.SecurityType
+// 	var securityType hostapd.SecurityType
 
-	if req.WPA3 {
-		securityType = hostapd.SecurityTypeWPA3
-	} else {
-		securityType = hostapd.SecurityTypeWPA2
-	}
+// 	if req.WPA3 {
+// 		securityType = hostapd.SecurityTypeWPA3
+// 	} else {
+// 		securityType = hostapd.SecurityTypeWPA2
+// 	}
 
-	if err := hostapd.SetSecurityType(securityType); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+// 	if err := hostapd.SetSecurityType(securityType); err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 		return
+// 	}
 
-	returnWiFiStatus(c)
-}
+// 	returnWiFiStatus(c)
+// }
 
 // Установить Wi-Fi канал
 func SetChannel(c *gin.Context) {
@@ -129,7 +128,7 @@ func SetChannel(c *gin.Context) {
 		return
 	}
 
-	if err := hostapd.SetChannel(req.Channel); err != nil {
+	if err := ap.SetChannel(req.Channel); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -139,7 +138,7 @@ func SetChannel(c *gin.Context) {
 
 // Вспомогательная функция для возврата статуса Wi-Fi
 func returnWiFiStatus(c *gin.Context) {
-	status, err := wifi.Status()
+	status, err := ap.Status()
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"success": false,
