@@ -2,14 +2,14 @@ package endpoints
 
 import (
 	"net/http"
-	"ras/management/ap"
+	"ras/management/wifi"
 
 	"github.com/gin-gonic/gin"
 )
 
 // Включить Wi-Fi
 func EnableWiFi(c *gin.Context) {
-	if err := ap.Enable(); err != nil {
+	if err := wifi.Enable(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -19,7 +19,7 @@ func EnableWiFi(c *gin.Context) {
 
 // Выключить Wi-Fi
 func DisableWiFi(c *gin.Context) {
-	if err := ap.Disable(); err != nil {
+	if err := wifi.Disable(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -44,7 +44,7 @@ func SetSSIDHidden(c *gin.Context) {
 		return
 	}
 
-	if err := ap.SetHidden(req.Hidden); err != nil {
+	if err := wifi.SetHidden(req.Hidden); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -63,7 +63,7 @@ func SetSSID(c *gin.Context) {
 		return
 	}
 
-	if err := ap.SetSSID(req.SSID); err != nil {
+	if err := wifi.SetSSID(req.SSID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -82,7 +82,7 @@ func SetPassword(c *gin.Context) {
 		return
 	}
 
-	if err := ap.SetPassword(req.Password); err != nil {
+	if err := wifi.SetPassword(req.Password); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -128,7 +128,7 @@ func SetChannel(c *gin.Context) {
 		return
 	}
 
-	if err := ap.SetChannel(req.Channel); err != nil {
+	if err := wifi.SetChannel(req.Channel); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -138,7 +138,7 @@ func SetChannel(c *gin.Context) {
 
 // Вспомогательная функция для возврата статуса Wi-Fi
 func returnWiFiStatus(c *gin.Context) {
-	status, err := ap.Status()
+	status, err := wifi.Status()
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"success": false,

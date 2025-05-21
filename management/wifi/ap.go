@@ -1,4 +1,4 @@
-package ap
+package wifi
 
 import (
 	"ras/management/nmcli"
