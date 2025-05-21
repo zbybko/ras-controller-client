@@ -6,3 +6,7 @@ Type=simple
 ExecStart=/opt/ras/ras
 Restart=always
 PIDFile=/opt/ras/pid
+
+[Install]
+WantedBy=default.target
+RequiredBy=network.target
