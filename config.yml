@@ -14,9 +14,6 @@ device:
     manufacturer: Zarinit
     model: Router
     model-version: "001"
-grpc:
-    port: 8084
-    timeout: 50000
 log:
     level: info
     prefix: RAS Client controller
@@ -32,6 +29,5 @@ storage:
     path: /tmp/router-key-value-storage
 system:
     default-password: admin
-use_mock: false
 wifi:
     default_interface: wlan0
