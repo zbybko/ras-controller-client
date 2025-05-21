@@ -10,6 +10,8 @@ import (
 
 var ErrNoWiFiService = fmt.Errorf("wi-fi service is not available on this system")
 
+var config *hostapd.Config
+
 type WiFiInfo struct {
 	Active     bool   `json:"active"`
 	SSID       string `json:"ssid"`
@@ -20,10 +22,15 @@ type WiFiInfo struct {
 }
 
 func Status() (*WiFiInfo, error) {
-
+	var err error
 	active := systemctl.IsActive("hostapd")
 
-	config, err := hostapd.New()
+	if config == nil {
+
+	}
+
+	config, err = hostapd.New()
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to load hostapd config: %w", err)
 	}
@@ -45,7 +52,7 @@ func Status() (*WiFiInfo, error) {
 }
 
 func Enable() error {
-	err := systemctl.Enable(hostapd.Service)
+	err := hostapd.Enable()
 	if err != nil {
 		log.Errorf("Failed to enable Wi-Fi: %s", err)
 		return err
@@ -55,7 +62,7 @@ func Enable() error {
 }
 
 func Disable() error {
-	err := systemctl.Disable(hostapd.Service)
+	err := hostapd.Disable()
 	if err != nil {
 		log.Errorf("Failed to disable Wi-Fi: %s", err)
 		return err

@@ -5,7 +5,6 @@ import (
 	"ras/management/wifi"
 	"ras/management/wifi/hostapd"
 
-	"github.com/charmbracelet/log"
 	"github.com/gin-gonic/gin"
 )
 
@@ -31,20 +30,14 @@ func DisableWiFi(c *gin.Context) {
 // Получить статус Wi-Fi
 func WiFiStatus() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		status, err := wifi.Status()
-		if err != nil {
-			ctx.AbortWithStatus(http.StatusInternalServerError)
-			log.Errorf("Failed get wi-fi status: %s", err)
-			return
-		}
-		ctx.JSON(http.StatusOK, status)
+		returnWiFiStatus(ctx)
 	}
 }
 
 // Скрыть/показать SSID
 func SetSSIDHidden(c *gin.Context) {
 	var req struct {
-		Hidden bool `json:"hidden"`
+		Hidden bool `json:"hidden" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -63,7 +56,7 @@ func SetSSIDHidden(c *gin.Context) {
 // Изменить имя сети (SSID)
 func SetSSID(c *gin.Context) {
 	var req struct {
-		SSID string `json:"ssid"`
+		SSID string `json:"ssid" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -109,7 +102,15 @@ func SetSecurityType(c *gin.Context) {
 		return
 	}
 
-	if err := hostapd.SetSecurityType(req.WPA3); err != nil {
+	var securityType hostapd.SecurityType
+
+	if req.WPA3 {
+		securityType = hostapd.SecurityTypeWPA3
+	} else {
+		securityType = hostapd.SecurityTypeWPA2
+	}
+
+	if err := hostapd.SetSecurityType(securityType); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -140,7 +141,10 @@ func SetChannel(c *gin.Context) {
 func returnWiFiStatus(c *gin.Context) {
 	status, err := wifi.Status()
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   err.Error(),
+		})
 		return
 	}
 	c.JSON(http.StatusOK, status)

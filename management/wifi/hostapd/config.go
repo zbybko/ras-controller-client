@@ -16,7 +16,8 @@ type Config struct {
 }
 
 const (
-	HostapdConfigFile = "/etc/hostapd/hostapd.conf"
+	HostapdConfigFile     = "/etc/hostapd/hostapd.conf"
+	HostapdConfigFileMode = 0644
 
 	Service = "hostapd.service"
 
@@ -30,6 +31,8 @@ const (
 
 	MinPasswordLength = 8
 	MaxPasswordLength = 63
+
+	CommentSym = '#'
 )
 
 func New() (*Config, error) {
@@ -45,7 +48,7 @@ func New() (*Config, error) {
 	}
 	for scanner.Scan() {
 		line := scanner.Text()
-		if line == "" || line[0] == '#' {
+		if line == "" || line[0] == CommentSym {
 			continue
 		}
 		keyVal := strings.Split(line, "=")
@@ -65,24 +68,15 @@ func (c Config) GetPassword() string {
 	return c.conf[PasswordKey]
 }
 
-const SSIDHidden = "1"
-
-func (c Config) GetHideSSID() bool {
-	return c.conf[HideSSIDKey] == SSIDHidden
-}
-
-func (c Config) GetSecurityType() string {
-	return c.conf[SecurityKey]
-}
-
 func (c Config) GetChannel() int {
 	if val, exists := c.conf[ChannelKey]; exists {
 		val, err := strconv.Atoi(val)
 		if err != nil {
-			log.Errorf("Failed to parseint: %s", err)
+			log.Errorf("Failed to parse integer value of hostapd channel: %s", err)
 		}
 		return val
 	}
+	log.Warn("No channel specified in hostapd config file", "configFile", HostapdConfigFile, "channelKey", ChannelKey)
 	return 0
 }
 
@@ -107,16 +101,25 @@ func updateConfig(key, value string) error {
 	}
 
 	output := strings.Join(lines, "\n")
-	if err := RestartHostapd(); err != nil {
+	if err := Restart(); err != nil {
 		log.Errorf("failed to restart hostapd: %s", err)
 		return err
 	}
 
-	return os.WriteFile(HostapdConfigFile, []byte(output), 0644)
+	return os.WriteFile(HostapdConfigFile, []byte(output), HostapdConfigFileMode)
+}
+
+const (
+	SSIDHidden    = "1"
+	SSIDNotHidden = "0"
+)
+
+func (c Config) GetHideSSID() bool {
+	return c.conf[HideSSIDKey] == SSIDHidden
 }
 
 func SetSSIDHidden(hidden bool) error {
-	val := "0"
+	val := SSIDNotHidden
 	if hidden {
 		val = SSIDHidden
 	}
@@ -134,18 +137,40 @@ func SetPassword(password string) error {
 	return updateConfig(PasswordKey, password)
 }
 
-func SetSecurityType(wpa3 bool) error {
-	val := "2"
-	if wpa3 {
-		val = "3"
-	}
-	return updateConfig(SecurityKey, val)
+// Start Security
+
+type SecurityType = string
+
+const (
+	SecurityTypeWPA2 SecurityType = "2"
+	SecurityTypeWPA3 SecurityType = "3"
+)
+
+func (c Config) GetSecurityType() string {
+	return c.conf[SecurityKey]
 }
+
+func SetSecurityType(st SecurityType) error {
+	return updateConfig(SecurityKey, string(st))
+}
+
+// End Security
 
 func SetChannel(channel int) error {
 	return updateConfig(ChannelKey, strconv.Itoa(channel))
 }
 
-func RestartHostapd() error {
+func (c Config) GetInterface() string {
+	return c.conf[InterfaceKey]
+}
+
+func Enable() error {
+	return systemctl.Enable(Service)
+}
+func Disable() error {
+	return systemctl.Disable(Service)
+}
+
+func Restart() error {
 	return systemctl.Restart(Service)
 }
