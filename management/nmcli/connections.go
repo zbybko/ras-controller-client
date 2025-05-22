@@ -106,7 +106,8 @@ func CreateWirelessConnection(
 }
 
 const (
-	OptionKeyIP4Method = "ipv4.method"
+	OptionKeyIP4Method    = "ipv4.method"
+	OptionKeyGeneralState = "GENERAL.STATE"
 )
 
 type IP4Method = string
@@ -125,6 +126,18 @@ func (c *Connection) Up() error {
 func (c *Connection) Down() error {
 	return utils.ExecuteErr("nmcli", "connection", "up", c.Name)
 }
+
+type ConnectionState = string
+
+const (
+	ConnectionStateActivated = "activated"
+)
+
+func (c *Connection) IsActive() bool {
+	state := c.getOption(OptionKeyGeneralState)
+	return ConnectionState(state) == ConnectionStateActivated
+}
+
 func (c *Connection) getOption(optionName string) string {
 	c.ensureOptionsParsed()
 	return c.options[optionName]

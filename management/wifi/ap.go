@@ -13,6 +13,7 @@ type Info struct {
 	SSID     string `json:"ssid"`
 	Password string `json:"password"`
 	Hidden   bool   `json:"hidden"`
+	Active   bool   `json:"active"`
 }
 
 func Status() (*Info, error) {
@@ -27,6 +28,7 @@ func Status() (*Info, error) {
 
 func getConnectionInfo(conn *nmcli.WirelessConnection) (*Info, error) {
 	info := Info{
+		Active:   conn.IsActive(),
 		Channel:  conn.GetChanel(),
 		SSID:     conn.GetSSID(),
 		Password: conn.GetPassword(),
@@ -83,7 +85,6 @@ func SetSSID(ssid string) error {
 	return nil
 }
 func SetPassword(password string) error {
-	log.Debugf("[WIFI management module] Setting password to '%s'", password)
 	conn, err := getConnection()
 
 	if err != nil {
