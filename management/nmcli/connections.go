@@ -213,7 +213,7 @@ func (c *Connection) ensureOptionsParsed() error {
 		return nil
 	}
 
-	output, err := utils.Execute("nmcli", "connection", "show", c.Name)
+	output, err := utils.Execute("nmcli", terseFlag, "connection", "show", c.Name)
 	if err != nil {
 		return err
 	}
