@@ -251,6 +251,7 @@ func parseKeyValOutput(output []byte) map[string]string {
 		words := strings.Split(l, ":")
 		if len(words) < 2 {
 			dict[words[0]] = ""
+			continue
 		}
 
 		dict[words[0]] = words[1]
