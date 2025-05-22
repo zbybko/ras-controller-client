@@ -3,6 +3,7 @@ Description=Router administration service
 
 [Service]
 Type=simple
+Environment="DEBUG=true"
 ExecStart=/opt/ras/ras
 Restart=always
 PIDFile=/opt/ras/pid
