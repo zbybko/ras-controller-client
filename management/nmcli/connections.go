@@ -148,7 +148,7 @@ func (c *Connection) ensureOptionsParsed() error {
 		return nil
 	}
 
-	output, err := utils.Execute("nmcli", terseFlag, "connection", "show", c.Name)
+	output, err := utils.Execute("nmcli", terseFlag, showSecretsFlag, "connection", "show", c.Name)
 	if err != nil {
 		return err
 	}
@@ -162,7 +162,7 @@ func (c *Connection) setOption(optionName, optionValue string) error {
 }
 
 func GetConnection(name string) (*Connection, error) {
-	output, err := utils.Execute("nmcli", "connection", "show", name)
+	output, err := utils.Execute("nmcli", terseFlag, showSecretsFlag, "connection", "show", name)
 	if err != nil {
 		return nil, err
 	}

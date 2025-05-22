@@ -6,7 +6,8 @@ import (
 )
 
 const (
-	terseFlag = "--terse"
+	terseFlag       = "--terse"
+	showSecretsFlag = "--show-secrets"
 )
 
 func getFields(fields ...string) string {
