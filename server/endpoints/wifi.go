@@ -3,6 +3,7 @@ package endpoints
 import (
 	"fmt"
 	"net/http"
+	"ras/management/iw"
 	"ras/management/wifi"
 
 	"github.com/charmbracelet/log"
@@ -138,6 +139,22 @@ func SetChannel(c *gin.Context) {
 	}
 
 	returnWiFiStatus(c)
+}
+
+func ConnectedClientsHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		clients, err := iw.GetConnectedDevices()
+		if err != nil {
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"error":   err.Error(),
+				"success": false})
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"clients": clients,
+		})
+	}
 }
 
 // Вспомогательная функция для возврата статуса Wi-Fi

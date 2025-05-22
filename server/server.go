@@ -72,6 +72,7 @@ func New() *gin.Engine {
 		wifi.POST("/password/set", endpoints.SetPassword)
 		// wifi.POST("/security/set", endpoints.SetSecurityType)
 		wifi.POST("/channel/set", endpoints.SetChannel)
+		wifi.GET("/connected-clients", endpoints.ConnectedClientsHandler())
 	}
 	auth := api.Group("/auth")
 	{
