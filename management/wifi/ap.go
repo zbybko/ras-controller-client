@@ -83,6 +83,7 @@ func SetSSID(ssid string) error {
 	return nil
 }
 func SetPassword(password string) error {
+	log.Debugf("[WIFI management module] Setting password to '%s'", password)
 	conn, err := getConnection()
 
 	if err != nil {

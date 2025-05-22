@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"ras/management/wifi"
 
+	"github.com/charmbracelet/log"
 	"github.com/gin-gonic/gin"
 )
 
@@ -74,13 +75,15 @@ func SetSSID(c *gin.Context) {
 // Изменить пароль сети
 func SetPassword(c *gin.Context) {
 	var req struct {
-		Password string `json:"password"`
+		Password string `json:"password" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
+
+	log.Debugf("[ENDPOINT] Setting password to '%s'", req.Password)
 
 	if err := wifi.SetPassword(req.Password); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

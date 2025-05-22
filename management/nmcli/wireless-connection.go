@@ -1,6 +1,10 @@
 package nmcli
 
-import "strconv"
+import (
+	"strconv"
+
+	"github.com/charmbracelet/log"
+)
 
 const (
 	OptionKeyWirelessSSID     = "802-11-wireless.ssid"
@@ -56,6 +60,7 @@ func (c *WirelessConnection) GetPassword() string {
 	return c.getOption(OptionKeyWirelessPassword)
 }
 func (c *WirelessConnection) SetPassword(password string) error {
+	log.Debugf("[Network Manager management module] setting password to '%s'", password)
 	return c.setOption(OptionKeyWirelessPassword, password)
 }
 
