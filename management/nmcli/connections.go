@@ -88,23 +88,6 @@ func createConnection(
 	}, nil
 }
 
-func CreateWirelessConnection(
-	deviceName string,
-	connectionName string) (*WirelessConnection, error) {
-
-	conn, err := createConnection(
-		ConnectionTypeWIFI, deviceName, connectionName,
-		[]string{"autoconnect", "yes", "ssid", connectionName},
-	)
-	if err != nil {
-		return nil, err
-	}
-	wireless := WirelessConnection{conn}
-	wireless.setOption(OptionKeyWirelessKeyMgmt, "wpa-psk")
-
-	return &wireless, nil
-}
-
 const (
 	OptionKeyIP4Method    = "ipv4.method"
 	OptionKeyGeneralState = "GENERAL.STATE"

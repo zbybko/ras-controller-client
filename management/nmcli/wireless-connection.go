@@ -5,13 +5,37 @@ import (
 )
 
 const (
-	OptionKeyWirelessSSID     = "802-11-wireless.ssid"
-	OptionKeyWirelessHidden   = "802-11-wireless.hidden"
-	OptionKeyWirelessChanel   = "802-11-wireless.chanel"
-	OptionKeyWirelessPassword = "802-11-wireless-security.psk"
-	OptionKeyWirelessMode     = "802-11-wireless.mode"
-	OptionKeyWirelessKeyMgmt  = "wifi-sec.key-mgmt" //Probably security mode
+	OptionKeyWirelessSSID             = "802-11-wireless.ssid"
+	OptionKeyWirelessHidden           = "802-11-wireless.hidden"
+	OptionKeyWirelessChanel           = "802-11-wireless.chanel"
+	OptionKeyWirelessMode             = "802-11-wireless.mode"
+	OptionKeyWirelessSecurityPassword = "802-11-wireless-security.psk"
+	OptionKeyWirelessSecurityKeyMgmt  = "802-11-wireless-security.key-mgmt" //Probably security mode
+	OptionKeyWirelessSecurityProto    = "802-11-wireless-security.proto"
+	OptionKeyWirelessSecurityGroup    = "802-11-wireless-security.group"
+	OptionKeyWirelessSecurityPairwise = "802-11-wireless-security.pairwise"
 )
+
+func CreateWirelessConnection(
+	deviceName string,
+	connectionName string) (*WirelessConnection, error) {
+
+	conn, err := createConnection(
+		ConnectionTypeWIFI, deviceName, connectionName,
+		[]string{"autoconnect", "yes", "ssid", connectionName},
+	)
+	if err != nil {
+		return nil, err
+	}
+	wireless := WirelessConnection{conn}
+	// TODO: idk what this consts mean, but they should be named
+	wireless.setOption(OptionKeyWirelessSecurityKeyMgmt, "wpa-psk")
+	wireless.setOption(OptionKeyWirelessSecurityProto, "rsn")
+	wireless.setOption(OptionKeyWirelessSecurityGroup, "ccmp")
+	wireless.setOption(OptionKeyWirelessSecurityPairwise, "ccmp")
+
+	return &wireless, nil
+}
 
 type WirelessMode string
 
@@ -55,10 +79,10 @@ func (c *WirelessConnection) SetChannel(chanel int) error {
 	return c.setOption(OptionKeyWirelessChanel, strconv.Itoa(chanel))
 }
 func (c *WirelessConnection) GetPassword() string {
-	return c.getOption(OptionKeyWirelessPassword)
+	return c.getOption(OptionKeyWirelessSecurityPassword)
 }
 func (c *WirelessConnection) SetPassword(password string) error {
-	return c.setOption(OptionKeyWirelessPassword, password)
+	return c.setOption(OptionKeyWirelessSecurityPassword, password)
 }
 
 const (
