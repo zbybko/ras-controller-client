@@ -8,7 +8,7 @@ const (
 	OptionKeyWirelessSSID     = "802-11-wireless.ssid"
 	OptionKeyWirelessHidden   = "802-11-wireless.hidden"
 	OptionKeyWirelessChanel   = "802-11-wireless.chanel"
-	OptionKeyWirelessPassword = "wifi-sec.psk"
+	OptionKeyWirelessPassword = "802-11-wireless-security.psk"
 	OptionKeyWirelessMode     = "802-11-wireless.mode"
 	OptionKeyWirelessKeyMgmt  = "wifi-sec.key-mgmt" //Probably security mode
 )
@@ -62,8 +62,8 @@ func (c *WirelessConnection) SetPassword(password string) error {
 }
 
 const (
-	WirelessHiddenValue    = "no"
-	WirelessNotHiddenValue = "yes"
+	WirelessHiddenValue    = "yes"
+	WirelessNotHiddenValue = "no"
 )
 
 func (c *WirelessConnection) IsHidden() bool {
