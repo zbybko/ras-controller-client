@@ -107,7 +107,7 @@ func (c *Connection) Up() error {
 	return utils.ExecuteErr("nmcli", "connection", "up", c.Name)
 }
 func (c *Connection) Down() error {
-	return utils.ExecuteErr("nmcli", "connection", "up", c.Name)
+	return utils.ExecuteErr("nmcli", "connection", "down", c.Name)
 }
 
 type ConnectionState = string
