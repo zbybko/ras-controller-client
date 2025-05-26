@@ -1,8 +1,9 @@
-package nmcli
-
 // Documentation for wireless nmcli:
+//
 // - https://www.networkmanager.dev/docs/api/latest/settings-802-11-wireless.html
+//
 // - https://www.networkmanager.dev/docs/api/latest/settings-802-11-wireless-security.html
+package nmcli
 
 import (
 	"strconv"
