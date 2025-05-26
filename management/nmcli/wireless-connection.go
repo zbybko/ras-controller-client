@@ -1,20 +1,24 @@
 package nmcli
 
+// Documentation for wireless nmcli:
+// - https://www.networkmanager.dev/docs/api/latest/settings-802-11-wireless.html
+// - https://www.networkmanager.dev/docs/api/latest/settings-802-11-wireless-security.html
+
 import (
 	"strconv"
 )
 
 const (
-	OptionKeyWirelessSSID             = "802-11-wireless.ssid"
-	OptionKeyWirelessHidden           = "802-11-wireless.hidden"
-	OptionKeyWirelessChanel           = "802-11-wireless.chanel"
-	OptionKeyWirelessMode             = "802-11-wireless.mode"
-	OptionKeyWirelessBand             = "802-11-wireless.band"
-	OptionKeyWirelessSecurityPassword = "802-11-wireless-security.psk"
-	OptionKeyWirelessSecurityKeyMgmt  = "802-11-wireless-security.key-mgmt" //Probably security mode
-	OptionKeyWirelessSecurityProto    = "802-11-wireless-security.proto"
-	OptionKeyWirelessSecurityGroup    = "802-11-wireless-security.group"
-	OptionKeyWirelessSecurityPairwise = "802-11-wireless-security.pairwise"
+	OptionKeyWirelessSSID                  = "802-11-wireless.ssid"
+	OptionKeyWirelessHidden                = "802-11-wireless.hidden"
+	OptionKeyWirelessChanel                = "802-11-wireless.chanel"
+	OptionKeyWirelessMode                  = "802-11-wireless.mode"
+	OptionKeyWirelessBand                  = "802-11-wireless.band"
+	OptionKeyWirelessSecurityPassword      = "802-11-wireless-security.psk"
+	OptionKeyWirelessSecurityKeyManagement = "802-11-wireless-security.key-mgmt"
+	OptionKeyWirelessSecurityProto         = "802-11-wireless-security.proto"
+	OptionKeyWirelessSecurityGroup         = "802-11-wireless-security.group"
+	OptionKeyWirelessSecurityPairwise      = "802-11-wireless-security.pairwise"
 )
 
 func CreateWirelessConnection(
@@ -29,19 +33,46 @@ func CreateWirelessConnection(
 		return nil, err
 	}
 	wireless := WirelessConnection{conn}
-	// TODO: idk what this consts mean, but they should be named
-	wireless.setOption(OptionKeyWirelessSecurityKeyMgmt, "wpa-psk")
-	wireless.setOption(OptionKeyWirelessSecurityProto, "rsn")
-	wireless.setOption(OptionKeyWirelessSecurityGroup, "ccmp")
-	wireless.setOption(OptionKeyWirelessSecurityPairwise, "ccmp")
+	// TODO: This options should be moved to own functions
+	wireless.setOption(OptionKeyWirelessSecurityKeyManagement, KeyManagementWPA2_3Personal)
+	wireless.setOption(OptionKeyWirelessSecurityProto, ProtoAllowWPA2RSN)
+	wireless.setOption(OptionKeyWirelessSecurityGroup, EncryptionAlgCcmp)
+	wireless.setOption(OptionKeyWirelessSecurityPairwise, EncryptionAlgCcmp)
 
 	return &wireless, nil
 }
 
+const (
+	EncryptionAlgTkip   = "tkip"
+	EncryptionAlgCcmp   = "ccmp"
+	EncryptionAlgWep40  = "wep40"
+	EncryptionAlgWep104 = "wep104"
+)
+
+type Proto = string
+
+const (
+	ProtoAllowWPA2RSN Proto = "rsn"
+	ProtoAllowWPA     Proto = "wpa"
+)
+
+type KeyManagement = string
+
+const (
+	KeyManagementNone             KeyManagement = "none"
+	KeyManagementWPA2_3Personal   KeyManagement = "wpa-psk"             // WPA2 + WPA3 personal
+	KeyManagementWPA3Personal     KeyManagement = "sae"                 // WPA3 personal only
+	KeyManagementWPA2_3Enterprise KeyManagement = "wpa-eap"             // WPA2 + WPA3 enterprise
+	KeyManagementWPA3Enterprise   KeyManagement = "wpa-eap-suite-b-192" // WPA3 enterprise only
+)
+
 type WirelessMode string
 
 const (
-	WirelessModeAccessPoint WirelessMode = "ap"
+	WirelessModeAccessPoint    WirelessMode = "ap"
+	WirelessModeInfrastructure WirelessMode = "infrastructure"
+	WirelessModeMesh           WirelessMode = "mesh"
+	WirelessModeAdhoc          WirelessMode = "adhoc"
 )
 
 func (c *WirelessConnection) SetMode(mode WirelessMode) error {

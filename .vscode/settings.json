@@ -1,3 +1,21 @@
 {
-    "cSpell.words": ["charmbracelet", "Debugf", "dhcpd", "gonic", "hostapd", "ifname", "Infof", "journalctl", "nmcli", "nslookup", "timedatectl", "traceroute", "Warnf", "Zarinit"]
+    "cSpell.words": [
+        "Ccmp",
+        "charmbracelet",
+        "Debugf",
+        "dhcpd",
+        "gonic",
+        "hostapd",
+        "ifname",
+        "Infof",
+        "journalctl",
+        "mgmt",
+        "nmcli",
+        "nslookup",
+        "timedatectl",
+        "Tkip",
+        "traceroute",
+        "Warnf",
+        "Zarinit"
+    ]
 }
