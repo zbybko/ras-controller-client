@@ -41,6 +41,35 @@ func WiFiStatus(band nmcli.WirelessBand) gin.HandlerFunc {
 	}
 }
 
+func WifiUpdate(band nmcli.WirelessBand) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var request struct {
+			Ssid     string `json:"ssid" binding:"required"`
+			SSIDHide bool   `json:"hide" binding:"required"`
+			Password string `json:"password" binding:"required,min=8,max=63"`
+			Channel  int    `json:"channel" binding:"required"`
+		}
+		if err := ctx.ShouldBindJSON(&request); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if err := wifi.SetSSID(band, request.Ssid); err != nil {
+			log.Errorf("Failed to set SSID: %s", err)
+		}
+		if err := wifi.SetHidden(band, request.SSIDHide); err != nil {
+			log.Errorf("Failed to set SSID Hidden to %v: %s", request.SSIDHide, err)
+		}
+		if err := wifi.SetPassword(band, request.Password); err != nil {
+			log.Errorf("Failed to set password: %s", err)
+		}
+		if err := wifi.SetChannel(band, request.Channel); err != nil {
+			log.Errorf("Failed to set channel: %s", err)
+		}
+
+		returnWiFiStatus(ctx, band)
+	}
+}
+
 // Скрыть/показать SSID
 func SetSSIDHidden(band nmcli.WirelessBand) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -105,33 +134,6 @@ func SetPassword(band nmcli.WirelessBand) gin.HandlerFunc {
 		returnWiFiStatus(c, band)
 	}
 }
-
-// Изменить тип шифрования (WPA2/WPA3)
-// func SetSecurityType(c *gin.Context) {
-// 	var req struct {
-// 		WPA3 bool `json:"wpa3"`
-// 	}
-
-// 	if err := c.ShouldBindJSON(&req); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-// 		return
-// 	}
-
-// 	var securityType hostapd.SecurityType
-
-// 	if req.WPA3 {
-// 		securityType = hostapd.SecurityTypeWPA3
-// 	} else {
-// 		securityType = hostapd.SecurityTypeWPA2
-// 	}
-
-// 	if err := hostapd.SetSecurityType(securityType); err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	returnWiFiStatus(c)
-// }
 
 // Установить Wi-Fi канал
 func SetChannel(band nmcli.WirelessBand) gin.HandlerFunc {

@@ -74,6 +74,8 @@ func New() *gin.Engine {
 			band2.POST("/ssid/set", endpoints.SetSSID(nmcli.WirelessBand2GHz))
 			band2.POST("/password/set", endpoints.SetPassword(nmcli.WirelessBand2GHz))
 			band2.POST("/channel/set", endpoints.SetChannel(nmcli.WirelessBand2GHz))
+
+			band2.POST("/update", endpoints.WifiUpdate(nmcli.WirelessBand2GHz))
 		}
 		band5 := wifi.Group("/5")
 		{
@@ -84,6 +86,8 @@ func New() *gin.Engine {
 			band5.POST("/ssid/set", endpoints.SetSSID(nmcli.WirelessBand5GHz))
 			band5.POST("/password/set", endpoints.SetPassword(nmcli.WirelessBand5GHz))
 			band5.POST("/channel/set", endpoints.SetChannel(nmcli.WirelessBand5GHz))
+
+			band2.POST("/update", endpoints.WifiUpdate(nmcli.WirelessBand5GHz))
 		}
 
 		wifi.GET("/connected-clients", endpoints.ConnectedClientsHandler())
