@@ -6,18 +6,17 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-const ConnectionName = "AccessPointZarinit"
-
 type Info struct {
-	Channel  int    `json:"channel"`
-	SSID     string `json:"ssid"`
-	Password string `json:"password"`
-	Hidden   bool   `json:"hidden"`
-	Active   bool   `json:"active"`
+	Channel  int                `json:"channel"`
+	SSID     string             `json:"ssid"`
+	Password string             `json:"password"`
+	Hidden   bool               `json:"hidden"`
+	Active   bool               `json:"active"`
+	Band     nmcli.WirelessBand `json:"band"`
 }
 
-func Status() (*Info, error) {
-	conn, err := getConnection()
+func Status(band nmcli.WirelessBand) (*Info, error) {
+	conn, err := getConnection(band)
 
 	if err != nil {
 		log.Errorf("Failed get connection: %s", err)
@@ -33,13 +32,14 @@ func getConnectionInfo(conn *nmcli.WirelessConnection) (*Info, error) {
 		SSID:     conn.GetSSID(),
 		Password: conn.GetPassword(),
 		Hidden:   conn.IsHidden(),
+		Band:     conn.GetBand(),
 	}
 
 	return &info, nil
 }
 
-func Enable() error {
-	conn, err := getConnection()
+func Enable(band nmcli.WirelessBand) error {
+	conn, err := getConnection(band)
 
 	if err != nil {
 		log.Errorf("Failed get connection: %s", err)
@@ -54,8 +54,8 @@ func Enable() error {
 	return nil
 }
 
-func Disable() error {
-	conn, err := getConnection()
+func Disable(band nmcli.WirelessBand) error {
+	conn, err := getConnection(band)
 
 	if err != nil {
 		log.Errorf("Failed get connection: %s", err)
@@ -69,8 +69,8 @@ func Disable() error {
 	}
 	return nil
 }
-func SetSSID(ssid string) error {
-	conn, err := getConnection()
+func SetSSID(band nmcli.WirelessBand, ssid string) error {
+	conn, err := getConnection(band)
 
 	if err != nil {
 		log.Errorf("Failed get connection: %s", err)
@@ -84,8 +84,8 @@ func SetSSID(ssid string) error {
 	}
 	return nil
 }
-func SetPassword(password string) error {
-	conn, err := getConnection()
+func SetPassword(band nmcli.WirelessBand, password string) error {
+	conn, err := getConnection(band)
 
 	if err != nil {
 		log.Errorf("Failed get connection: %s", err)
@@ -99,8 +99,8 @@ func SetPassword(password string) error {
 	}
 	return nil
 }
-func SetHidden(hidden bool) error {
-	conn, err := getConnection()
+func SetHidden(band nmcli.WirelessBand, hidden bool) error {
+	conn, err := getConnection(band)
 
 	if err != nil {
 		log.Errorf("Failed get connection: %s", err)
@@ -114,8 +114,8 @@ func SetHidden(hidden bool) error {
 	}
 	return nil
 }
-func SetChannel(channel int) error {
-	conn, err := getConnection()
+func SetChannel(band nmcli.WirelessBand, channel int) error {
+	conn, err := getConnection(band)
 
 	if err != nil {
 		log.Errorf("Failed get connection: %s", err)
@@ -129,14 +129,3 @@ func SetChannel(channel int) error {
 	}
 	return nil
 }
-
-// type ConnectedDevice struct {
-// 	MAC       string `json:"mac"`
-// 	Interface string `json:"interface"`
-// 	Signal    string `json:"signal"`
-// }
-
-// func GetConnectedDevices() {
-
-// 	output, err := utils.Execute("iw", "dev")
-// }

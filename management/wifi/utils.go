@@ -7,36 +7,41 @@ import (
 	"github.com/spf13/viper"
 )
 
-func getConnection() (*nmcli.WirelessConnection, error) {
-	exists, conn := connectionExists()
+func getConnectionName(band nmcli.WirelessBand) string {
+	return "ZarinitAccessPoint" + "-" + string(band)
+
+}
+
+func getConnection(band nmcli.WirelessBand) (*nmcli.WirelessConnection, error) {
+	exists, conn := connectionExists(band)
 	if exists {
 		return conn, nil
 	}
 
-	return createConnection()
+	return createConnection(band)
 }
 
-func connectionExists() (bool, *nmcli.WirelessConnection) {
+func connectionExists(band nmcli.WirelessBand) (bool, *nmcli.WirelessConnection) {
 	connections, err := nmcli.GetConnections()
 	if err != nil {
 		log.Errorf("Failed get connection list: %s", err)
 		return false, nil
 	}
 	for _, conn := range connections {
-		if conn.Name == ConnectionName {
+		if conn.Name == getConnectionName(band) {
 			return true, &nmcli.WirelessConnection{Connection: &conn}
 		}
 	}
 
-	log.Warnf("No connection")
+	log.Warnf("No connection for band %s", band)
 	return false, nil
 }
-func createConnection() (*nmcli.WirelessConnection, error) {
+func createConnection(band nmcli.WirelessBand) (*nmcli.WirelessConnection, error) {
 	interfaceName := viper.GetString("wifi.default_interface")
 
-	conn, err := nmcli.CreateWirelessConnection(interfaceName, ConnectionName)
+	conn, err := nmcli.CreateWirelessConnection(interfaceName, getConnectionName(band))
 	conn.SetMode(nmcli.WirelessModeAccessPoint)
-	conn.SetBand(nmcli.WirelessBandDefault)
+	conn.SetBand(band)
 	conn.SetIP4Method(nmcli.ConnectionIP4MethodShared)
 
 	if err != nil {

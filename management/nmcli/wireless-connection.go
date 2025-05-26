@@ -9,6 +9,7 @@ const (
 	OptionKeyWirelessHidden           = "802-11-wireless.hidden"
 	OptionKeyWirelessChanel           = "802-11-wireless.chanel"
 	OptionKeyWirelessMode             = "802-11-wireless.mode"
+	OptionKeyWirelessBand             = "802-11-wireless.band"
 	OptionKeyWirelessSecurityPassword = "802-11-wireless-security.psk"
 	OptionKeyWirelessSecurityKeyMgmt  = "802-11-wireless-security.key-mgmt" //Probably security mode
 	OptionKeyWirelessSecurityProto    = "802-11-wireless-security.proto"
@@ -50,11 +51,15 @@ func (c *WirelessConnection) SetMode(mode WirelessMode) error {
 type WirelessBand = string
 
 const (
-	WirelessBandDefault WirelessBand = "bg"
+	WirelessBand2GHz WirelessBand = "bg"
+	WirelessBand5GHz WirelessBand = "a"
 )
 
 func (c *WirelessConnection) SetBand(band WirelessBand) error {
-	return c.setOption(OptionKeyWirelessMode, string(band))
+	return c.setOption(OptionKeyWirelessBand, string(band))
+}
+func (c *WirelessConnection) GetBand() WirelessBand {
+	return WirelessBand(c.getOption(OptionKeyWirelessBand))
 }
 
 func (c *WirelessConnection) GetSSID() string {

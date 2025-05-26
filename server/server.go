@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"ras/config"
 	"ras/management"
+	"ras/management/nmcli"
 	"ras/server/endpoints"
 	"ras/server/endpoints/server_management"
 	"ras/server/middleware"
@@ -64,14 +65,27 @@ func New() *gin.Engine {
 	}
 	wifi := api.Group("/wifi")
 	{
-		wifi.POST("/enable", endpoints.EnableWiFi)
-		wifi.POST("/disable", endpoints.DisableWiFi)
-		wifi.GET("/status", endpoints.WiFiStatus())
-		wifi.POST("/ssid/hide", endpoints.SetSSIDHidden)
-		wifi.POST("/ssid/set", endpoints.SetSSID)
-		wifi.POST("/password/set", endpoints.SetPassword)
-		// wifi.POST("/security/set", endpoints.SetSecurityType)
-		wifi.POST("/channel/set", endpoints.SetChannel)
+		band2 := wifi.Group("/2")
+		{
+			band2.POST("/enable", endpoints.EnableWiFi(nmcli.WirelessBand2GHz))
+			band2.POST("/disable", endpoints.DisableWiFi(nmcli.WirelessBand2GHz))
+			band2.GET("/status", endpoints.WiFiStatus(nmcli.WirelessBand2GHz))
+			band2.POST("/ssid/hide", endpoints.SetSSIDHidden(nmcli.WirelessBand2GHz))
+			band2.POST("/ssid/set", endpoints.SetSSID(nmcli.WirelessBand2GHz))
+			band2.POST("/password/set", endpoints.SetPassword(nmcli.WirelessBand2GHz))
+			band2.POST("/channel/set", endpoints.SetChannel(nmcli.WirelessBand2GHz))
+		}
+		band5 := wifi.Group("/5")
+		{
+			band5.POST("/enable", endpoints.EnableWiFi(nmcli.WirelessBand5GHz))
+			band5.POST("/disable", endpoints.DisableWiFi(nmcli.WirelessBand5GHz))
+			band5.GET("/status", endpoints.WiFiStatus(nmcli.WirelessBand5GHz))
+			band5.POST("/ssid/hide", endpoints.SetSSIDHidden(nmcli.WirelessBand5GHz))
+			band5.POST("/ssid/set", endpoints.SetSSID(nmcli.WirelessBand5GHz))
+			band5.POST("/password/set", endpoints.SetPassword(nmcli.WirelessBand5GHz))
+			band5.POST("/channel/set", endpoints.SetChannel(nmcli.WirelessBand5GHz))
+		}
+
 		wifi.GET("/connected-clients", endpoints.ConnectedClientsHandler())
 	}
 	auth := api.Group("/auth")
