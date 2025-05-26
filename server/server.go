@@ -65,8 +65,8 @@ func New() *gin.Engine {
 	}
 	wifi := api.Group("/wifi")
 	{
-		band2 := wifi.Group("/2")
 		{
+			band2 := wifi.Group("/2")
 			band2.POST("/enable", endpoints.EnableWiFi(nmcli.WirelessBand2GHz))
 			band2.POST("/disable", endpoints.DisableWiFi(nmcli.WirelessBand2GHz))
 			band2.GET("/status", endpoints.WiFiStatus(nmcli.WirelessBand2GHz))
@@ -77,8 +77,8 @@ func New() *gin.Engine {
 
 			band2.POST("/update", endpoints.WifiUpdate(nmcli.WirelessBand2GHz))
 		}
-		band5 := wifi.Group("/5")
 		{
+			band5 := wifi.Group("/5")
 			band5.POST("/enable", endpoints.EnableWiFi(nmcli.WirelessBand5GHz))
 			band5.POST("/disable", endpoints.DisableWiFi(nmcli.WirelessBand5GHz))
 			band5.GET("/status", endpoints.WiFiStatus(nmcli.WirelessBand5GHz))
@@ -87,7 +87,7 @@ func New() *gin.Engine {
 			band5.POST("/password/set", endpoints.SetPassword(nmcli.WirelessBand5GHz))
 			band5.POST("/channel/set", endpoints.SetChannel(nmcli.WirelessBand5GHz))
 
-			band2.POST("/update", endpoints.WifiUpdate(nmcli.WirelessBand5GHz))
+			band5.POST("/update", endpoints.WifiUpdate(nmcli.WirelessBand5GHz))
 		}
 
 		wifi.GET("/connected-clients", endpoints.ConnectedClientsHandler())
