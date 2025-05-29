@@ -6,22 +6,6 @@ It provides a REST API and lightweight web interface for configuring Wi-Fi, Ethe
 
 ---
 
-## 🧑‍💻 My Contribution
-
-This project is developed by a team.  
-I personally implemented the following key modules:
-
-- **Wi-Fi management**: SSID visibility, password, encryption (WPA2/WPA3), channel selection (`hostapd`)
-- **DHCP server control**: enable/disable, IP range configuration, static lease support (`dhcpd`)
-- **SSH service**: enable/disable over `systemd`, firewall integration via `firewalld`
-- **Ethernet status**: display active ports, IPs, MAC addresses, and interface state
-- **System service control**: interaction with `systemctl`, including restarts and service detection
-- **API backend**: designed and implemented REST endpoints using the `gin-gonic` framework in Go
-
-Other modules such as SIM support, VPN, or cloud sync are developed by other contributors.
-
----
-
 ## ✨ Features Overview
 
 - Wi-Fi configuration using `hostapd`
